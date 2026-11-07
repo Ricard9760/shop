@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sneaker Store TMA</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg: #0f0f12;
+            --card: #1a1a20;
+            --text: #ffffff;
+            --subtext: #8e8e93;
+            --accent: #00ff88;
+            --accent-dark: #00cc6a;
+            --border: #2c2c35;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background-color: var(--bg); color: var(--text); padding-bottom: 90px; }
+        
+        header {
+            position: sticky; top: 0; z-index: 10;
+            background: rgba(15, 15, 18, 0.9); backdrop-filter: blur(10px);
+            padding: 14px 16px; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .logo { font-size: 18px; font-weight: 800; letter-spacing: 1px; color: var(--accent); }
+        .currency-select {
+            background: var(--card); color: var(--text); border: 1px solid var(--border);
+            padding: 6px 10px; border-radius: 8px; font-weight: 600; font-size: 13px; outline: none;
+        }
+
+        .tabs { display: flex; gap: 8px; padding: 12px 16px; overflow-x: auto; }
+        .tab-btn {
+            background: var(--card); color: var(--subtext); border: 1px solid var(--border);
+            padding: 7px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;
+        }
+        .tab-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 16px; }
+        .card {
+            background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+            overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; padding: 10px;
+        }
+        .card img { width: 100%; height: 130px; object-fit: cover; border-radius: 10px; background: #25252d; }
+        .card-brand { font-size: 11px; color: var(--subtext); text-transform: uppercase; margin-top: 8px; }
+        .card-title { font-size: 14px; font-weight: 700; margin: 3px 0 6px; }
+        .card-price { font-size: 15px; font-weight: 800; color: var(--accent); margin-bottom: 8px; }
+        
+        .sizes { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 10px; }
+        .size-chip {
+            font-size: 11px; padding: 3px 6px; border-radius: 6px; background: var(--bg);
+            border: 1px solid var(--border); color: var(--subtext); cursor: pointer;
+        }
+        .size-chip.selected { border-color: var(--accent); color: var(--accent); font-weight: 700; }
+
+        .btn {
+            background: var(--accent); color: #000; border: none; padding: 9px;
+            border-radius: 9px; font-weight: 700; font-size: 13px; cursor: pointer; width: 100%;
+        }
+        .btn:active { background: var(--accent-dark); }
+
+        .section { display: none; padding: 16px; }
+        .section.active { display: block; }
+
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 12px; color: var(--subtext); margin-bottom: 4px; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border);
+            background: var(--card); color: var(--text); font-size: 14px;
+        }
+
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0; background: var(--card);
+            border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 10px 0; z-index: 20;
+        }
+        .nav-item { color: var(--subtext); font-size: 12px; font-weight: 600; cursor: pointer; text-align: center; }
+        .nav-item.active { color: var(--accent); }
+        .cart-item {
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--card); padding: 12px; border-radius: 10px; margin-bottom: 8px; border: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">SNEAKER HUB</div>
+    <select id="currency" class="currency-select" onchange="renderProducts(); renderCart();">
+        <option value="USD" selected>$ USD</option>
+        <option value="UAH">₴ UAH</option>
+        <option value="RUB">₽ RUB</option>
+        <option value="USDT">₮ USDT</option>
+    </select>
+</header>
+
+<div id="page-catalog" class="section active" style="padding: 0;">
+    <div class="tabs">
+        <button class="tab-btn active" onclick="filterBrand('ALL', this)">Все</button>
+        <button class="tab-btn" onclick="filterBrand('Nike', this)">Nike</button>
+        <button class="tab-btn" onclick="filterBrand('Adidas', this)">Adidas</button>
+        <button class="tab-btn" onclick="filterBrand('New Balance', this)">New Balance</button>
+    </div>
+    <div id="product-grid" class="grid"></div>
+</div>
+
+<div id="page-cart" class="section">
+    <h2 style="margin-bottom: 14px;">🛒 Корзина</h2>
+    <div id="cart-list"></div>
+    <div id="cart-summary" style="margin-top: 16px; display: none;">
+        <div class="form-group">
+            <label>Ваше Имя и Телефон / Telegram</label>
+            <input type="text" id="client-phone" placeholder="+380... или @username">
+        </div>
+        <div class="form-group">
+            <label>Адрес доставки (Новая Почта / Город)</label>
+            <input type="text" id="client-address" placeholder="Город, отделение №...">
+        </div>
+        <div class="form-group">
+            <label>Способ оплаты</label>
+            <select id="payment-method">
+                <option value="USDT / CryptoBot (@send)">Криптовалюта (USDT / @send)</option>
+                <option value="Карта (Mono / Privat)">Перевод на карту</option>
+                <option value="Наложенный платеж">При получении</option>
+            </select>
+        </div>
+        <h3 id="total-price" style="margin: 14px 0; color: var(--accent);">Итого: $0</h3>
+        <button class="btn" onclick="submitOrder()">✅ Подтвердить и отправить заказ</button>
+    </div>
+</div>
+
+<div id="page-admin" class="section">
+    <h2 style="margin-bottom: 8px;">⚙️ Управление товарами</h2>
+    <p style="font-size: 12px; color: var(--subtext); margin-bottom: 16px;">
+        Добавь товар здесь — он сразу появится в витрине и отправится боту для записи в таблицу (CSV).
+    </p>
+    <div class="form-group">
+        <label>Бренд</label>
+        <select id="adm-brand">
+            <option value="Nike">Nike</option>
+            <option value="Adidas">Adidas</option>
+            <option value="New Balance">New Balance</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Название модели</label>
+        <input type="text" id="adm-title" placeholder="Например: Nike Air Force 1 Low">
+    </div>
+    <div class="form-group">
+        <label>Базовая цена в долларах ($)</label>
+        <input type="number" id="adm-price" placeholder="110">
+    </div>
+    <div class="form-group">
+        <label>Ссылка на фото (URL)</label>
+        <input type="text" id="adm-img" placeholder="https://...">
+    </div>
+    <button class="btn" onclick="addNewProduct()">➕ Добавить товар в магазин</button>
+</div>
+
+<div class="bottom-nav">
+    <div class="nav-item active" onclick="switchPage('catalog', this)">👟 Каталог</div>
+    <div class="nav-item" onclick="switchPage('cart', this)">🛒 Корзина (<span id="cart-count">0</span>)</div>
+    <div class="nav-item" onclick="switchPage('admin', this)">➕ Админ</div>
+</div>
+
+<script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+
+    const rates = {
+        USD: { rate: 1, symbol: '$' },
+        USDT: { rate: 1, symbol: '₮' },
+        UAH: { rate: 41.5, symbol: '₴' },
+        RUB: { rate: 96, symbol: '₽' }
+    };
+
+    let defaultProducts = [
+        { id: 1, brand: 'Nike', title: 'Air Jordan 1 Retro High', priceUSD: 145, img: 'https://images.unsplash.com/photo-1552346154-21d32810aba3?w=500' },
+        { id: 2, brand: 'Nike', title: 'Dunk Low Panda', priceUSD: 115, img: 'https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=500' },
+        { id: 3, brand: 'New Balance', title: 'NB 530 White Silver', priceUSD: 105, img: 'https://images.unsplash.com/photo-1539185441755-769473a23570?w=500' },
+        { id: 4, brand: 'Adidas', title: 'Campus 00s Core Black', priceUSD: 110, img: 'https://images.unsplash.com/photo-1587563871167-1ee9c731aefb?w=500' }
+    ];
+
+    let products = JSON.parse(localStorage.getItem('sneaker_products')) || defaultProducts;
+    let currentFilter = 'ALL';
+    let cart = [];
+    let selectedSizes = {};
+
+    function formatPrice(usd) {
+        const cur = document.getElementById('currency').value;
+        const val = Math.round(usd * rates[cur].rate);
+        return `${val} ${rates[cur].symbol}`;
+    }
+
+    function selectSize(prodId, size) {
+        selectedSizes[prodId] = size;
+        renderProducts();
+    }
+
+    function renderProducts() {
+        const grid = document.getElementById('product-grid');
+        grid.innerHTML = '';
+        const list = currentFilter === 'ALL' ? products : products.filter(p => p.brand === currentFilter);
+
+        list.forEach(p => {
+            const chosenSize = selectedSizes[p.id] || 42;
+            const sizesHtml = [40, 41, 42, 43, 44].map(s => 
+                `<span class="size-chip ${chosenSize === s ? 'selected' : ''}" onclick="selectSize(${p.id}, ${s})">${s}</span>`
+            ).join('');
+
+            grid.innerHTML += `
+                <div class="card">
+                    <div>
+                        <img src="${p.img}" alt="${p.title}">
+                        <div class="card-brand">${p.brand}</div>
+                        <div class="card-title">${p.title}</div>
+                        <div class="card-price">${formatPrice(p.priceUSD)}</div>
+                        <div class="sizes">${sizesHtml}</div>
+                    </div>
+                    <button class="btn" onclick="addToCart(${p.id})">В корзину</button>
+                </div>
+            `;
+        });
+    }
+
+    function filterBrand(brand, btn) {
+        currentFilter = brand;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderProducts();
+    }
+
+    function addToCart(id) {
+        const item = products.find(p => p.id === id);
+        const size = selectedSizes[id] || 42;
+        cart.push({ ...item, size });
+        document.getElementById('cart-count').innerText = cart.length;
+        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+    }
+
+    function renderCart() {
+        const list = document.getElementById('cart-list');
+        const summary = document.getElementById('cart-summary');
+        list.innerHTML = '';
+
+        if (cart.length === 0) {
+            list.innerHTML = '<p style="color: var(--subtext);">Корзина пока пуста</p>';
+            summary.style.display = 'none';
+            return;
+        }
+        summary.style.display = 'block';
+        let totalUSD = 0;
+
+        cart.forEach((item, index) => {
+            totalUSD += Number(item.priceUSD);
+            list.innerHTML += `
+                <div class="cart-item">
+                    <div>
+                        <div style="font-weight:700;">${item.title} (EU ${item.size})</div>
+                        <div style="font-size:13px; color:var(--accent);">${formatPrice(item.priceUSD)}</div>
+                    </div>
+                    <button onclick="removeFromCart(${index})" style="background:none;border:none;color:#ff4d4d;font-size:16px;">✕</button>
+                </div>
+            `;
+        });
+        document.getElementById('total-price').innerText = `Итого: ${formatPrice(totalUSD)} ($${totalUSD})`;
+    }
+
+    function removeFromCart(idx) {
+        cart.splice(idx, 1);
+        document.getElementById('cart-count').innerText = cart.length;
+        renderCart();
+    }
+
+    function switchPage(page, navEl) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById('page-' + page).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        navEl.classList.add('active');
+        if (page === 'cart') renderCart();
+    }
+
+    function addNewProduct() {
+        const brand = document.getElementById('adm-brand').value;
+        const title = document.getElementById('adm-title').value.trim();
+        const priceUSD = Number(document.getElementById('adm-price').value);
+        const img = document.getElementById('adm-img').value.trim() || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500';
+
+        if (!title || !priceUSD) {
+            alert('Заполните название и цену в $!');
+            return;
+        }
+
+        const newProd = { id: Date.now(), brand, title, priceUSD, img };
+        products.push(newProd);
+        localStorage.setItem('sneaker_products', JSON.stringify(products));
+        renderProducts();
+
+        tg.sendData(JSON.stringify({
+            action: 'add_product',
+            product: newProd
+        }));
+    }
+
+    function submitOrder() {
+        const phone = document.getElementById('client-phone').value.trim();
+        const address = document.getElementById('client-address').value.trim();
+        const payment = document.getElementById('payment-method').value;
+        const currency = document.getElementById('currency').value;
+
+        if (!phone || !address) {
+            alert('Пожалуйста, укажите контакт для связи и адрес доставки!');
+            return;
+        }
+
+        const totalUSD = cart.reduce((sum, i) => sum + Number(i.priceUSD), 0);
+
+        const payload = {
+            action: 'new_order',
+            currency: currency,
+            total_usd: totalUSD,
+            total_converted: formatPrice(totalUSD),
+            phone: phone,
+            address: address,
+            payment: payment,
+            items: cart.map(i => `${i.brand} ${i.title} (EU ${i.size}) - $${i.priceUSD}`)
+        };
+
+        tg.sendData(JSON.stringify(payload));
+    }
+
+    renderProducts();
+</script>
+</body>
+</html>
