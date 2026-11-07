@@ -201,9 +201,7 @@
     <div class="search-wrap">
         <input type="text" id="search-input" class="search-input" placeholder="🔍 Поиск модели или бренда..." oninput="renderCatalog()">
     </div>
-    <!-- Динамические категории (порядок управляется в админке) -->
     <div class="tabs" id="gender-tabs"></div>
-    <!-- Динамические бренды (порядок управляется в админке) -->
     <div class="tabs" id="brand-tabs"></div>
     <div id="product-grid" class="grid"></div>
 </div>
@@ -334,15 +332,17 @@
 
     <div id="admin-status" class="status-box"></div>
 
-    <!-- УПРАВЛЕНИЕ ПОРЯДКОМ КАТЕГОРИЙ И БРЕНДОВ -->
+    <!-- УПРАВЛЕНИЕ КАТЕГОРИЯМИ И БРЕНДАМИ (ДОБАВЛЕНИЕ / УДАЛЕНИЕ / ПЕРЕИМЕНОВАНИЕ) -->
     <details style="border:1px solid var(--black); padding:10px; margin-bottom:16px; background:var(--surface);">
         <summary style="font-size:12px; font-weight:800; cursor:pointer; text-transform:uppercase;">
-            🔀 Настройка порядка и позиций брендов и категорий
+            📂 Управление категориями (Добавить / Удалить / Переименовать)
         </summary>
         <div style="margin-top:10px;">
-            <p style="font-size:11px; color:#555; margin-bottom:8px;">Нажмите «Вверх» или «Вниз», чтобы изменить позицию кнопки в интерфейсе магазина:</p>
-            <div id="sort-categories-list"></div>
-            <div id="sort-brands-list" style="margin-top:10px;"></div>
+            <div style="display:flex; gap:6px; margin-bottom:10px;">
+                <input type="text" id="new-category-name" placeholder="Новая категория (напр. Аксессуары)" style="padding:6px; font-size:13px; border:1px solid #000;">
+                <button class="btn-black" style="width:auto; padding:6px 12px; font-size:11px;" onclick="addNewCategory()">+ Добавить</button>
+            </div>
+            <div id="manage-categories-list"></div>
         </div>
     </details>
 
@@ -354,12 +354,8 @@
     <input type="hidden" id="adm-edit-id" value="">
 
     <div class="form-group">
-        <label>Категория</label>
-        <select id="adm-gender">
-            <option value="Мужские">Мужские</option>
-            <option value="Женские">Женские</option>
-            <option value="Унисекс">Унисекс</option>
-        </select>
+        <label>Категория товара</label>
+        <select id="adm-gender"></select>
     </div>
     <div class="form-group">
         <label>Бренд (впиши любой)</label>
@@ -456,7 +452,8 @@
         document.getElementById('det-admin-btns').style.display = 'flex';
         initCloudSettingsForm();
         renderAdminProductList();
-        renderSortSettingsUI();
+        renderCategoryOptions();
+        renderCategoryManagerUI();
     }
 
     function detectGitHubRepo() {
@@ -483,6 +480,7 @@
         localStorage.setItem('cfg_imgbb_key', document.getElementById('cfg-imgbb-key').value.trim());
         alert('✅ Ключи сохранены!');
         document.getElementById('cloud-settings-box').open = false;
+        loadSharedCatalog();
     }
 
     let logoTapCount = 0;
@@ -515,26 +513,7 @@
         RUB: { rate: 96, sym: '₽' }
     };
 
-    const defaultCatalog = [
-        {
-            id: 2351716,
-            code: "S-2351716",
-            gender: "Мужские",
-            brand: "Asics",
-            title: "Asics Gel NYC Graphite Grey Black 1201A789-020",
-            priceUSD: 100,
-            oldPriceUSD: 212,
-            images: ["https://images.unsplash.com/photo-1539185441755-769473a23570?w=700"],
-            sizes: [{ size: "41", cm: "26 см" }, { size: "42", cm: "26.5 см" }],
-            sizeChartImg: "",
-            variants: [{ name: "Graphite Grey", img: "https://images.unsplash.com/photo-1539185441755-769473a23570?w=400" }],
-            desc: "Модель Asics Gel-NYC."
-        }
-    ];
-
-    let products = JSON.parse(localStorage.getItem('bw_sneaker_catalog_v5')) || defaultCatalog;
-    
-    // Кастомный порядок категорий и брендов (сохраняется в памяти)
+    let products = [];
     let customGenderOrder = JSON.parse(localStorage.getItem('bw_gender_order')) || ['ALL', 'Мужские', 'Женские', 'Унисекс'];
     let customBrandOrder = JSON.parse(localStorage.getItem('bw_brand_order')) || [];
 
@@ -551,8 +530,10 @@
     let uploadedChartPhoto = "";
     let uploadedVariants = [];
 
+    // ЗАГРУЗКА ОБЩЕЙ БАЗЫ С GITHUB (С ЗАЩИТОЙ ОТ ПУСТОГО КЭША)
     async function loadSharedCatalog() {
         const repo = detectGitHubRepo();
+        const token = localStorage.getItem('cfg_gh_token');
         try {
             let res;
             if (repo) {
@@ -564,18 +545,41 @@
                 const cloudData = await res.json();
                 if (Array.isArray(cloudData)) {
                     products = cloudData;
-                    localStorage.setItem('bw_sneaker_catalog_v5', JSON.stringify(products));
+                    localStorage.setItem('bw_sneaker_catalog_v6', JSON.stringify(products));
                 }
             }
-        } catch (e) {}
+        } catch (e) {
+            const local = localStorage.getItem('bw_sneaker_catalog_v6');
+            if (local) products = JSON.parse(local);
+        }
+
+        if (products.length === 0) {
+            products = [
+                {
+                    id: 2351716,
+                    code: "S-2351716",
+                    gender: "Мужские",
+                    brand: "Asics",
+                    title: "Asics Gel NYC Graphite Grey Black",
+                    priceUSD: 100,
+                    oldPriceUSD: 212,
+                    images: ["https://images.unsplash.com/photo-1539185441755-769473a23570?w=700"],
+                    sizes: [{ size: "41", cm: "26 см" }, { size: "42", cm: "26.5 см" }],
+                    sizeChartImg: "",
+                    variants: [{ name: "Graphite Grey", img: "https://images.unsplash.com/photo-1539185441755-769473a23570?w=400" }],
+                    desc: "Модель Asics Gel-NYC."
+                }
+            ];
+        }
+
         renderCatalog();
         if (isOwner) {
             renderAdminProductList();
-            renderSortSettingsUI();
+            renderCategoryOptions();
+            renderCategoryManagerUI();
         }
     }
 
-    // ИСПРАВЛЕННОЕ СИНХРОНИЗИРОВАННОЕ УДАЛЕНИЕ И СОХРАНЕНИЕ С УЧЕТОМ SHA
     async function syncCatalogToGitHub() {
         const repo = document.getElementById('cfg-repo').value.trim() || detectGitHubRepo();
         const token = localStorage.getItem('cfg_gh_token');
@@ -583,7 +587,7 @@
 
         const statusEl = document.getElementById('admin-status');
         statusEl.style.display = 'block';
-        statusEl.innerText = '⏳ Синхронизация с общей базой...';
+        statusEl.innerText = '⏳ Синхронизация с облаком...';
 
         const apiUrl = `https://api.github.com/repos/${repo}/contents/products.json`;
         let sha = null;
@@ -617,11 +621,11 @@
         });
 
         if (putRes.ok) {
-            statusEl.innerText = '✅ База успешно обновлена для всех!';
+            statusEl.innerText = '✅ База обновлена для всех покупателей!';
             setTimeout(() => { statusEl.style.display = 'none'; }, 4000);
             return true;
         } else {
-            statusEl.innerText = '⚠️ Ошибка GitHub. Проверьте токен.';
+            statusEl.innerText = '⚠️ Ошибка синхронизации GitHub. Проверьте токен.';
             return false;
         }
     }
@@ -640,27 +644,100 @@
         if (isOwner) renderAdminProductList();
     }
 
-    // РЕНДЕР КАТЕГОРИЙ И БРЕНДОВ С УЧЕТОМ ИХ ПОЗИЦИЙ
+    // УПРАВЛЕНИЕ КАТЕГОРИЯМИ (ДОБАВЛЕНИЕ / УДАЛЕНИЕ / ПЕРЕИМЕНОВАНИЕ)
     function renderGenderTabs() {
         const wrap = document.getElementById('gender-tabs');
-        const defaultCats = ['ALL', 'Мужские', 'Женские', 'Унисекс'];
-        
-        // Синхронизируем массив с актуальными категориями
-        defaultCats.forEach(c => { if (!customGenderOrder.includes(c)) customGenderOrder.push(c); });
+        const activeCategories = customGenderOrder.filter(c => c === 'ALL' || products.some(p => p.gender === c) || c === customGenderOrder[1]);
 
         wrap.innerHTML = customGenderOrder.map(g => {
             const label = g === 'ALL' ? 'Все' : g;
-            return `<button class="tab-btn ${selectedGender === g ? 'active' : ''}" onclick="setGender('${g}', this)">${label}</button>`;
+            return `<button class="tab-btn ${selectedGender === g ? 'active' : ''}" onclick="setGender('${g}')">${label}</button>`;
         }).join('');
+    }
+
+    function renderCategoryOptions() {
+        const select = document.getElementById('adm-gender');
+        const cats = customGenderOrder.filter(c => c !== 'ALL');
+        select.innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
+    }
+
+    function renderCategoryManagerUI() {
+        const wrap = document.getElementById('manage-categories-list');
+        const cats = customGenderOrder.filter(c => c !== 'ALL');
+        wrap.innerHTML = cats.map((cat, idx) => `
+            <div class="order-row-drag" style="margin-bottom:6px;">
+                <input type="text" value="${cat}" id="cat-edit-${idx}" style="padding:4px; font-size:12px; border:1px solid #ccc; width:130px;">
+                <div style="display:flex; gap:4px;">
+                    <button class="adm-mini-btn" onclick="renameCategory(${idx})">💾</button>
+                    <button class="adm-mini-btn del" onclick="removeCategory('${cat}')">🗑</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function addNewCategory() {
+        const input = document.getElementById('new-category-name');
+        const name = input.value.trim();
+        if (!name) return;
+        if (customGenderOrder.includes(name)) {
+            alert('Такая категория уже есть!');
+            return;
+        }
+        customGenderOrder.push(name);
+        localStorage.setItem('bw_gender_order', JSON.stringify(customGenderOrder));
+        input.value = '';
+        renderGenderTabs();
+        renderCategoryOptions();
+        renderCategoryManagerUI();
+    }
+
+    function renameCategory(idx) {
+        const realIdx = idx + 1; // пропуск ALL
+        const oldName = customGenderOrder[realIdx];
+        const newName = document.getElementById(`cat-edit-${idx}`).value.trim();
+        if (!newName || oldName === newName) return;
+
+        customGenderOrder[realIdx] = newName;
+        products.forEach(p => {
+            if (p.gender === oldName) p.gender = newName;
+        });
+        localStorage.setItem('bw_gender_order', JSON.stringify(customGenderOrder));
+        localStorage.setItem('bw_sneaker_catalog_v6', JSON.stringify(products));
+        renderGenderTabs();
+        renderCategoryOptions();
+        renderCategoryManagerUI();
+        renderCatalog();
+        syncCatalogToGitHub();
+    }
+
+    function removeCategory(catName) {
+        if (customGenderOrder.filter(c => c !== 'ALL').length <= 1) {
+            alert('Нельзя удалить последнюю категорию!');
+            return;
+        }
+        if (!confirm(`Удалить категорию «${catName}»? Товары из нее перенесутся в первую доступную категорию.`)) return;
+
+        const fallbackCat = customGenderOrder.find(c => c !== 'ALL' && c !== catName);
+        products.forEach(p => {
+            if (p.gender === catName) p.gender = fallbackCat;
+        });
+
+        customGenderOrder = customGenderOrder.filter(c => c !== catName);
+        localStorage.setItem('bw_gender_order', JSON.stringify(customGenderOrder));
+        localStorage.setItem('bw_sneaker_catalog_v6', JSON.stringify(products));
+
+        if (selectedGender === catName) selectedGender = 'ALL';
+        renderGenderTabs();
+        renderCategoryOptions();
+        renderCategoryManagerUI();
+        renderCatalog();
+        syncCatalogToGitHub();
     }
 
     function renderBrandTabs() {
         const wrap = document.getElementById('brand-tabs');
         const existingBrands = [...new Set(products.map(p => p.brand))];
-        
-        // Добавляем новые бренды в конец списка
         existingBrands.forEach(b => { if (!customBrandOrder.includes(b)) customBrandOrder.push(b); });
-        // Удаляем из порядка те, у которых больше нет товаров
         customBrandOrder = customBrandOrder.filter(b => existingBrands.includes(b));
 
         const fullBrands = ['ALL', ...customBrandOrder];
@@ -671,7 +748,7 @@
         `).join('');
     }
 
-    function setGender(g, btn) {
+    function setGender(g) {
         selectedGender = g;
         renderGenderTabs();
         renderCatalog();
@@ -729,54 +806,6 @@
                 </div>
             `;
         });
-    }
-
-    // ИНТЕРФЕЙС ПЕРЕМЕЩЕНИЯ КАТЕГОРИЙ И БРЕНДОВ В АДМИНКЕ
-    function renderSortSettingsUI() {
-        const catWrap = document.getElementById('sort-categories-list');
-        catWrap.innerHTML = '<strong style="font-size:11px; text-transform:uppercase;">Категории:</strong>' + customGenderOrder.map((cat, idx) => `
-            <div class="order-row-drag">
-                <span style="font-size:12px; font-weight:700;">${cat}</span>
-                <div style="display:flex; gap:4px;">
-                    <button class="adm-mini-btn" onclick="moveCategory(${idx}, -1)">⬆</button>
-                    <button class="adm-mini-btn" onclick="moveCategory(${idx}, 1)">⬇</button>
-                </div>
-            </div>
-        `).join('');
-
-        const existingBrands = [...new Set(products.map(p => p.brand))];
-        existingBrands.forEach(b => { if (!customBrandOrder.includes(b)) customBrandOrder.push(b); });
-
-        const brandWrap = document.getElementById('sort-brands-list');
-        brandWrap.innerHTML = '<strong style="font-size:11px; text-transform:uppercase;">Бренды:</strong>' + (customBrandOrder.length ? customBrandOrder.map((brand, idx) => `
-            <div class="order-row-drag">
-                <span style="font-size:12px; font-weight:700;">${brand}</span>
-                <div style="display:flex; gap:4px;">
-                    <button class="adm-mini-btn" onclick="moveBrand(${idx}, -1)">⬆</button>
-                    <button class="adm-mini-btn" onclick="moveBrand(${idx}, 1)">⬇</button>
-                </div>
-            </div>
-        `).join('') : '<p style="font-size:11px; color:#777;">Брендов пока нет</p>');
-    }
-
-    function moveCategory(index, direction) {
-        const newIdx = index + direction;
-        if (newIdx < 0 || newIdx >= customGenderOrder.length) return;
-        const item = customGenderOrder.splice(index, 1)[0];
-        customGenderOrder.splice(newIdx, 0, item);
-        localStorage.setItem('bw_gender_order', JSON.stringify(customGenderOrder));
-        renderSortSettingsUI();
-        renderCatalog();
-    }
-
-    function moveBrand(index, direction) {
-        const newIdx = index + direction;
-        if (newIdx < 0 || newIdx >= customBrandOrder.length) return;
-        const item = customBrandOrder.splice(index, 1)[0];
-        customBrandOrder.splice(newIdx, 0, item);
-        localStorage.setItem('bw_brand_order', JSON.stringify(customBrandOrder));
-        renderSortSettingsUI();
-        renderCatalog();
     }
 
     function renderAdminProductList() {
@@ -861,7 +890,6 @@
         renderVariantPreviews();
     }
 
-    // ФУНКЦИЯ УДАЛЕНИЯ С АВТОСИНХРОНИЗАЦИЕЙ ОБЛАКА
     async function deleteProduct(id) {
         if (!isOwner) return;
         const p = products.find(x => x.id === id);
@@ -869,10 +897,9 @@
         if (!confirm(`Удалить товар «${p.title}» из магазина?`)) return;
 
         products = products.filter(x => x.id !== id);
-        localStorage.setItem('bw_sneaker_catalog_v5', JSON.stringify(products));
+        localStorage.setItem('bw_sneaker_catalog_v6', JSON.stringify(products));
         renderCatalog();
         renderAdminProductList();
-        renderSortSettingsUI();
         if (activeProduct && activeProduct.id === id) openPage('catalog');
 
         await syncCatalogToGitHub();
@@ -1067,7 +1094,8 @@
         if (page === 'cart') renderCart();
         if (page === 'admin') {
             renderAdminProductList();
-            renderSortSettingsUI();
+            renderCategoryManagerUI();
+            renderCategoryOptions();
         }
         window.scrollTo(0, 0);
     }
@@ -1244,10 +1272,9 @@
             products.unshift(newProd);
         }
 
-        localStorage.setItem('bw_sneaker_catalog_v5', JSON.stringify(products));
+        localStorage.setItem('bw_sneaker_catalog_v6', JSON.stringify(products));
         renderCatalog();
         renderAdminProductList();
-        renderSortSettingsUI();
 
         await syncCatalogToGitHub();
         btn.disabled = false;
