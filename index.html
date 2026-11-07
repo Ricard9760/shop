@@ -7,179 +7,87 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg: #ffffff;
-            --surface: #f5f5f5;
-            --text: #111111;
-            --subtext: #777777;
-            --border: #e0e0e0;
-            --black: #000000;
-            --danger: #d93025;
+            --bg: #ffffff; --surface: #f5f5f5; --text: #111111; --subtext: #777777;
+            --border: #e0e0e0; --black: #000000; --danger: #d93025;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
         body { background-color: var(--bg); color: var(--text); padding-bottom: 85px; -webkit-tap-highlight-color: transparent; }
-
         header {
-            position: sticky; top: 0; z-index: 20;
-            background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(8px);
-            padding: 14px 16px; border-bottom: 1px solid var(--border);
-            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 20; background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(8px);
+            padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;
         }
         .logo-box { display: flex; align-items: center; gap: 8px; font-weight: 900; font-size: 17px; letter-spacing: 2.5px; cursor: pointer; user-select: none; }
         .logo-icon { border: 2px solid var(--black); padding: 2px 5px; font-size: 13px; font-weight: 900; }
-        .currency-select {
-            background: var(--bg); color: var(--text); border: 1px solid var(--black);
-            padding: 5px 8px; font-weight: 700; font-size: 12px; outline: none; text-transform: uppercase;
-        }
-
+        .currency-select { background: var(--bg); color: var(--text); border: 1px solid var(--black); padding: 5px 8px; font-weight: 700; font-size: 12px; outline: none; text-transform: uppercase; }
         .search-wrap { padding: 12px 16px 6px; }
-        .search-input {
-            width: 100%; background: var(--surface); border: none; border-radius: 20px;
-            padding: 10px 16px; font-size: 14px; outline: none; color: var(--text);
-        }
+        .search-input { width: 100%; background: var(--surface); border: none; border-radius: 20px; padding: 10px 16px; font-size: 14px; outline: none; color: var(--text); }
         .tabs { display: flex; gap: 8px; padding: 8px 16px; overflow-x: auto; scrollbar-width: none; }
         .tabs::-webkit-scrollbar { display: none; }
-        .tab-btn {
-            background: var(--bg); color: var(--text); border: 1px solid var(--border);
-            padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; text-transform: uppercase;
-        }
+        .tab-btn { background: var(--bg); color: var(--text); border: 1px solid var(--border); padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; text-transform: uppercase; }
         .tab-btn.active { background: var(--black); color: #fff; border-color: var(--black); }
-
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 8px 16px; }
-        .card {
-            position: relative; border: 1px solid var(--border); display: flex; flex-direction: column;
-            justify-content: space-between; padding: 10px; cursor: pointer; background: var(--bg);
-        }
-        .sale-badge {
-            position: absolute; top: 8px; left: 8px; background: var(--black); color: #fff;
-            font-size: 10px; font-weight: 800; padding: 3px 6px; text-transform: uppercase; z-index: 2;
-        }
+        .card { position: relative; border: 1px solid var(--border); display: flex; flex-direction: column; justify-content: space-between; padding: 10px; cursor: pointer; background: var(--bg); }
+        .sale-badge { position: absolute; top: 8px; left: 8px; background: var(--black); color: #fff; font-size: 10px; font-weight: 800; padding: 3px 6px; text-transform: uppercase; z-index: 2; }
         .card img { width: 100%; height: 140px; object-fit: contain; background: #fafafa; margin-bottom: 8px; }
         .card-brand { font-size: 10px; color: var(--subtext); text-transform: uppercase; letter-spacing: 0.5px; }
         .card-title { font-size: 13px; font-weight: 700; margin: 3px 0 6px; line-height: 1.25; }
         .price-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
         .old-price { font-size: 12px; color: #999; text-decoration: line-through; }
         .cur-price { font-size: 14px; font-weight: 800; color: var(--black); }
-
-        .admin-card-actions {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 8px; padding-top: 6px; border-top: 1px dashed var(--border);
-        }
-        .adm-mini-btn {
-            font-size: 11px; font-weight: 700; padding: 5px; border: 1px solid var(--black);
-            background: var(--bg); cursor: pointer; text-align: center;
-        }
+        .admin-card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 8px; padding-top: 6px; border-top: 1px dashed var(--border); }
+        .adm-mini-btn { font-size: 11px; font-weight: 700; padding: 5px; border: 1px solid var(--black); background: var(--bg); cursor: pointer; text-align: center; }
         .adm-mini-btn.del { border-color: var(--danger); color: var(--danger); }
-
         .section { display: none; }
         .section.active { display: block; }
         .detail-wrap { padding: 12px 16px; }
         .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; margin-bottom: 12px; cursor: pointer; text-transform: uppercase; }
-        
         .slider-box { position: relative; width: 100%; height: 270px; background: #fafafa; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid var(--border); }
         .slider-box img { width: 100%; height: 100%; object-fit: contain; }
-        .slide-arrow {
-            position: absolute; top: 50%; transform: translateY(-50%);
-            background: rgba(255,255,255,0.85); border: 1px solid var(--border);
-            width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
-            font-weight: bold; cursor: pointer; user-select: none;
-        }
-        .slide-arrow.left { left: 8px; }
-        .slide-arrow.right { right: 8px; }
+        .slide-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.85); border: 1px solid var(--border); width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; user-select: none; }
+        .slide-arrow.left { left: 8px; } .slide-arrow.right { right: 8px; }
         .dots { display: flex; justify-content: center; gap: 6px; margin: 10px 0 14px; }
         .dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--black); background: transparent; cursor: pointer; }
         .dot.active { background: var(--black); }
-
         .detail-title { font-size: 18px; font-weight: 800; line-height: 1.3; margin-bottom: 6px; }
         .detail-code { font-size: 12px; color: var(--subtext); margin-bottom: 12px; }
         .detail-prices { display: flex; align-items: baseline; gap: 12px; margin-bottom: 16px; }
         .detail-old { font-size: 16px; color: #999; text-decoration: line-through; }
         .detail-cur { font-size: 20px; font-weight: 800; }
-
         .sizes-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 12px; }
-        .size-box {
-            border: 1px solid var(--border); padding: 12px 0; text-align: center;
-            font-size: 14px; font-weight: 600; cursor: pointer; background: var(--bg);
-        }
+        .size-box { border: 1px solid var(--border); padding: 12px 0; text-align: center; font-size: 14px; font-weight: 600; cursor: pointer; background: var(--bg); }
         .size-box.selected { border: 2px solid var(--black); font-weight: 800; }
-
-        .size-chart-link {
-            display: inline-block; font-size: 13px; color: var(--subtext);
-            text-decoration: underline; margin-bottom: 18px; cursor: pointer;
-        }
-
+        .size-chart-link { display: inline-block; font-size: 13px; color: var(--subtext); text-decoration: underline; margin-bottom: 18px; cursor: pointer; }
         .action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 22px; }
-        .btn-black {
-            background: var(--black); color: #fff; border: 1px solid var(--black);
-            padding: 13px 8px; font-size: 12px; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 0.5px; cursor: pointer; text-align: center; width: 100%;
-        }
+        .btn-black { background: var(--black); color: #fff; border: 1px solid var(--black); padding: 13px 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; text-align: center; width: 100%; }
         .btn-black:disabled { opacity: 0.5; cursor: not-allowed; }
-        .btn-outline {
-            background: var(--bg); color: var(--black); border: 1px solid var(--black);
-            padding: 13px 8px; font-size: 12px; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 0.5px; cursor: pointer; text-align: center; width: 100%;
-        }
-
+        .btn-outline { background: var(--bg); color: var(--black); border: 1px solid var(--black); padding: 13px 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; text-align: center; width: 100%; }
         .variants-title { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
         .variants-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 18px; }
-        .var-thumb {
-            width: 64px; height: 64px; border: 1px solid var(--border); padding: 3px;
-            cursor: pointer; flex-shrink: 0; background: #fafafa;
-        }
+        .var-thumb { width: 64px; height: 64px; border: 1px solid var(--border); padding: 3px; cursor: pointer; flex-shrink: 0; background: #fafafa; }
         .var-thumb.active { border: 2px solid var(--black); }
         .var-thumb img { width: 100%; height: 100%; object-fit: contain; }
-
         .desc-box { border-top: 1px solid var(--border); padding-top: 14px; font-size: 14px; line-height: 1.5; color: #333; white-space: pre-line; }
-
-        .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 50;
-            display: none; align-items: center; justify-content: center; padding: 16px;
-        }
-        .modal-card {
-            background: var(--bg); width: 100%; max-width: 400px; padding: 18px;
-            border: 1px solid var(--black); max-height: 85vh; overflow-y: auto;
-        }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 50; display: none; align-items: center; justify-content: center; padding: 16px; }
+        .modal-card { background: var(--bg); width: 100%; max-width: 400px; padding: 18px; border: 1px solid var(--black); max-height: 85vh; overflow-y: auto; }
         .size-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
         .size-table th, .size-table td { border: 1px solid var(--border); padding: 8px; text-align: center; }
         .size-table th { background: var(--surface); font-weight: 700; }
-
         .pad-section { padding: 16px; }
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 5px; text-transform: uppercase; }
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%; padding: 10px; border: 1px solid var(--black); background: var(--bg);
-            color: var(--text); font-size: 14px; border-radius: 0; outline: none;
-        }
-        .checkbox-row {
-            display: flex; align-items: center; gap: 8px; padding: 10px;
-            border: 1px solid var(--black); background: var(--surface); margin-bottom: 12px; cursor: pointer;
-            font-size: 13px; font-weight: 700;
-        }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid var(--black); background: var(--bg); color: var(--text); font-size: 14px; border-radius: 0; outline: none; }
+        .checkbox-row { display: flex; align-items: center; gap: 8px; padding: 10px; border: 1px solid var(--black); background: var(--surface); margin-bottom: 12px; cursor: pointer; font-size: 13px; font-weight: 700; }
         .checkbox-row input { width: 18px; height: 18px; accent-color: var(--black); }
-
-        .cart-item {
-            display: flex; justify-content: space-between; align-items: center;
-            border: 1px solid var(--border); padding: 10px; margin-bottom: 8px; background: #fff;
-        }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); padding: 10px; margin-bottom: 8px; background: #fff; }
         .preview-strip { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
         .preview-item { position: relative; width: 56px; height: 56px; border: 1px solid var(--border); }
         .preview-item img { width: 100%; height: 100%; object-fit: cover; }
-        .preview-del {
-            position: absolute; top: -6px; right: -6px; background: var(--black); color: #fff;
-            width: 18px; height: 18px; font-size: 11px; display: flex; align-items: center; justify-content: center; cursor: pointer;
-        }
-
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg);
-            border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 12px 0; z-index: 30;
-        }
+        .preview-del { position: absolute; top: -6px; right: -6px; background: var(--black); color: #fff; width: 18px; height: 18px; font-size: 11px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 12px 0; z-index: 30; }
         .nav-item { color: var(--subtext); font-size: 12px; font-weight: 700; text-transform: uppercase; cursor: pointer; }
         .nav-item.active { color: var(--black); text-decoration: underline; text-underline-offset: 4px; }
         .status-box { padding: 10px; margin-bottom: 12px; font-size: 12px; font-weight: 700; border: 1px solid var(--black); background: #f0fff4; display: none; }
-        
-        .order-row-drag {
-            display: flex; justify-content: space-between; align-items: center;
-            border: 1px solid var(--border); padding: 8px 10px; margin-bottom: 6px; background: #fafafa;
-        }
+        .order-row-drag { display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); padding: 8px 10px; margin-bottom: 6px; background: #fafafa; }
     </style>
 </head>
 <body>
@@ -196,7 +104,6 @@
     </select>
 </header>
 
-<!-- 1. КАТАЛОГ -->
 <div id="page-catalog" class="section active">
     <div class="search-wrap">
         <input type="text" id="search-input" class="search-input" placeholder="🔍 Поиск модели или бренда..." oninput="renderCatalog()">
@@ -206,7 +113,6 @@
     <div id="product-grid" class="grid"></div>
 </div>
 
-<!-- 2. ДЕТАЛЬНАЯ СТРАНИЦА ТОВАРА -->
 <div id="page-detail" class="section">
     <div class="detail-wrap">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
@@ -216,41 +122,32 @@
                 <button class="adm-mini-btn del" onclick="deleteProduct(activeProduct.id)">🗑 Удалить</button>
             </div>
         </div>
-        
         <div class="slider-box">
             <div class="slide-arrow left" onclick="changeSlide(-1)">‹</div>
             <img id="det-main-img" src="" alt="Sneaker">
             <div class="slide-arrow right" onclick="changeSlide(1)">›</div>
         </div>
         <div id="det-dots" class="dots"></div>
-
         <div id="det-title" class="detail-title"></div>
         <div id="det-code" class="detail-code"></div>
-
         <div class="detail-prices">
             <span id="det-old-price" class="detail-old"></span>
             <span id="det-cur-price" class="detail-cur"></span>
         </div>
-
         <div id="det-sizes" class="sizes-grid"></div>
-
         <div class="size-chart-link" onclick="openSizeModal()">Размерная сетка (см стопы)</div>
-
         <div class="action-row">
             <button class="btn-black" onclick="buyNowCurrent()">Быстрая покупка</button>
             <button class="btn-outline" onclick="addCurrentToCart()">Добавить в корзину</button>
         </div>
-
         <div id="det-variants-block" style="display:none;">
             <div class="variants-title">Другие цвета: (<span id="det-color-name"></span>)</div>
             <div id="det-variants" class="variants-row"></div>
         </div>
-
         <div id="det-desc" class="desc-box"></div>
     </div>
 </div>
 
-<!-- МОДАЛЬНОЕ ОКНО РАЗМЕРНОЙ СЕТКИ -->
 <div id="size-modal" class="modal-overlay" onclick="closeSizeModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
@@ -262,11 +159,9 @@
     </div>
 </div>
 
-<!-- 3. КОРЗИНА И ОФОРМЛЕНИЕ ЗАКАЗА -->
 <div id="page-cart" class="section pad-section">
     <h2 style="margin-bottom: 14px; font-size:18px; text-transform:uppercase;">Корзина</h2>
     <div id="cart-list"></div>
-    
     <div id="cart-summary" style="margin-top: 18px; display: none;">
         <div class="form-group">
             <label>Имя и Фамилия *</label>
@@ -305,10 +200,8 @@
     </div>
 </div>
 
-<!-- 4. АДМИНКА -->
 <div id="page-admin" class="section pad-section">
     <h2 style="margin-bottom: 10px; font-size:18px; text-transform:uppercase;">⚙️ Панель владельца</h2>
-
     <details id="cloud-settings-box" style="border:1px solid var(--black); padding:10px; margin-bottom:16px; background:var(--surface);">
         <summary style="font-size:12px; font-weight:800; cursor:pointer; text-transform:uppercase;">
             ☁️ Настройка общей базы (GitHub и ImgBB)
@@ -329,30 +222,24 @@
             <button class="btn-black" style="padding:9px;" onclick="saveCloudConfig()">💾 Сохранить ключи</button>
         </div>
     </details>
-
     <div id="admin-status" class="status-box"></div>
-
-    <!-- УПРАВЛЕНИЕ КАТЕГОРИЯМИ И БРЕНДАМИ (ДОБАВЛЕНИЕ / УДАЛЕНИЕ / ПЕРЕИМЕНОВАНИЕ) -->
     <details style="border:1px solid var(--black); padding:10px; margin-bottom:16px; background:var(--surface);">
         <summary style="font-size:12px; font-weight:800; cursor:pointer; text-transform:uppercase;">
-            📂 Управление категориями (Добавить / Удалить / Переименовать)
+            📂 Управление категориями
         </summary>
         <div style="margin-top:10px;">
             <div style="display:flex; gap:6px; margin-bottom:10px;">
-                <input type="text" id="new-category-name" placeholder="Новая категория (напр. Аксессуары)" style="padding:6px; font-size:13px; border:1px solid #000;">
+                <input type="text" id="new-category-name" placeholder="Новая категория" style="padding:6px; font-size:13px; border:1px solid #000;">
                 <button class="btn-black" style="width:auto; padding:6px 12px; font-size:11px;" onclick="addNewCategory()">+ Добавить</button>
             </div>
             <div id="manage-categories-list"></div>
         </div>
     </details>
-
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
         <h3 id="form-mode-title" style="font-size:15px; text-transform:uppercase;">➕ Новый товар</h3>
         <button id="cancel-edit-btn" class="adm-mini-btn" style="display:none;" onclick="resetAdminForm()">✕ Отменить</button>
     </div>
-
     <input type="hidden" id="adm-edit-id" value="">
-
     <div class="form-group">
         <label>Категория товара</label>
         <select id="adm-gender"></select>
@@ -365,7 +252,6 @@
         <label>Название модели и код</label>
         <input type="text" id="adm-title" placeholder="Asics Gel NYC">
     </div>
-
     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
         <div class="form-group">
             <label>Цена *</label>
@@ -377,45 +263,38 @@
                 <option value="UAH">UAH (₴)</option>
                 <option value="USD">USD ($)</option>
                 <option value="RUB">RUB (₽)</option>
-                <option value="USDT">USDT (₮)</option>
+                <option value="USDT">₮ USDT</option>
             </select>
         </div>
     </div>
-
     <label class="checkbox-row">
         <input type="checkbox" id="adm-has-discount" onchange="toggleDiscountBox()">
         <span>🔥 Назначить скидку (перечеркнутая старая цена)</span>
     </label>
-
     <div id="discount-settings" style="display:none; border:1px solid var(--border); padding:10px; margin-bottom:12px; background:#fafafa;">
         <div class="form-group" style="margin-bottom:0;">
             <label>Старая цена до скидки</label>
             <input type="number" id="adm-old-price" placeholder="8810">
         </div>
     </div>
-
     <div class="form-group">
         <label>Фотографии товара</label>
         <input type="file" id="adm-photos" accept="image/*" multiple onchange="handleMultiPhotos(this)">
         <div id="adm-photo-preview" class="preview-strip"></div>
     </div>
-
     <div class="form-group">
         <label>Размеры и длина стопы в см</label>
         <textarea id="adm-sizes" rows="3">36=23см, 37=23.5см, 38=24см, 39=24.5см, 40=25см, 41=26см, 42=26.5см, 43=27.5см, 44=28см, 45=29см</textarea>
     </div>
-
     <div class="form-group">
         <label>Фото размерной сетки</label>
         <input type="file" id="adm-chart-file" accept="image/*" onchange="handleChartPhoto(this)">
         <div id="adm-chart-preview" class="preview-strip"></div>
     </div>
-
     <div class="form-group">
         <label>Описание товара</label>
         <textarea id="adm-desc" rows="3" placeholder="Описание..."></textarea>
     </div>
-
     <div style="border:1px solid var(--border); padding:10px; margin-bottom:14px; background:var(--surface);">
         <label style="font-size:12px; font-weight:700; display:block; margin-bottom:6px;">🎨 ДРУГИЕ ЦВЕТА / ВАРИАНТЫ</label>
         <input type="text" id="var-color-name" placeholder="Название цвета" style="margin-bottom:6px;">
@@ -423,9 +302,7 @@
         <button type="button" class="btn-outline" style="padding:7px;" onclick="addVariantDraft()">+ Прикрепить цвет</button>
         <div id="var-draft-list" class="preview-strip" style="margin-top:8px;"></div>
     </div>
-
     <button id="save-prod-btn" class="btn-black" onclick="saveNewProduct()">✅ Сохранить и опубликовать</button>
-
     <h3 style="margin: 24px 0 10px; font-size:15px; text-transform:uppercase; border-top:2px solid var(--black); padding-top:16px;">
         📦 Управление каталогом
     </h3>
@@ -459,13 +336,7 @@
     function detectGitHubRepo() {
         const saved = localStorage.getItem('cfg_gh_repo');
         if (saved) return saved;
-        const host = window.location.hostname;
-        const pathParts = window.location.pathname.split('/').filter(Boolean);
-        if (host.endsWith('.github.io') && pathParts.length > 0) {
-            const user = host.replace('.github.io', '');
-            return `${user}/${pathParts[0]}`;
-        }
-        return '';
+        return 'Ricard9760/shop';
     }
 
     function initCloudSettingsForm() {
@@ -530,46 +401,24 @@
     let uploadedChartPhoto = "";
     let uploadedVariants = [];
 
-    // ЗАГРУЗКА ОБЩЕЙ БАЗЫ С GITHUB (С ЗАЩИТОЙ ОТ ПУСТОГО КЭША)
     async function loadSharedCatalog() {
         const repo = detectGitHubRepo();
         const token = localStorage.getItem('cfg_gh_token');
         try {
-            let res;
-            if (repo) {
-                res = await fetch(`https://raw.githubusercontent.com/${repo}/main/products.json?t=${Date.now()}`);
-            } else {
-                res = await fetch(`./products.json?t=${Date.now()}`);
-            }
+            const res = await fetch(`https://raw.githubusercontent.com/${repo}/main/products.json?t=${Date.now()}`);
             if (res && res.ok) {
                 const cloudData = await res.json();
                 if (Array.isArray(cloudData)) {
                     products = cloudData;
-                    localStorage.setItem('bw_sneaker_catalog_v6', JSON.stringify(products));
+                    localStorage.setItem('bw_sneaker_catalog_v7', JSON.stringify(products));
                 }
+            } else {
+                const local = localStorage.getItem('bw_sneaker_catalog_v7');
+                if (local) products = JSON.parse(local);
             }
         } catch (e) {
-            const local = localStorage.getItem('bw_sneaker_catalog_v6');
+            const local = localStorage.getItem('bw_sneaker_catalog_v7');
             if (local) products = JSON.parse(local);
-        }
-
-        if (products.length === 0) {
-            products = [
-                {
-                    id: 2351716,
-                    code: "S-2351716",
-                    gender: "Мужские",
-                    brand: "Asics",
-                    title: "Asics Gel NYC Graphite Grey Black",
-                    priceUSD: 100,
-                    oldPriceUSD: 212,
-                    images: ["https://images.unsplash.com/photo-1539185441755-769473a23570?w=700"],
-                    sizes: [{ size: "41", cm: "26 см" }, { size: "42", cm: "26.5 см" }],
-                    sizeChartImg: "",
-                    variants: [{ name: "Graphite Grey", img: "https://images.unsplash.com/photo-1539185441755-769473a23570?w=400" }],
-                    desc: "Модель Asics Gel-NYC."
-                }
-            ];
         }
 
         renderCatalog();
@@ -583,7 +432,10 @@
     async function syncCatalogToGitHub() {
         const repo = document.getElementById('cfg-repo').value.trim() || detectGitHubRepo();
         const token = localStorage.getItem('cfg_gh_token');
-        if (!repo || !token) return false;
+        if (!repo || !token) {
+            alert('⚠️ Ошибка: не введен GitHub Token в настройках общей базы!');
+            return false;
+        }
 
         const statusEl = document.getElementById('admin-status');
         statusEl.style.display = 'block';
@@ -621,11 +473,12 @@
         });
 
         if (putRes.ok) {
-            statusEl.innerText = '✅ База обновлена для всех покупателей!';
+            statusEl.innerText = '✅ Изменения успешно сохранены в облаке!';
             setTimeout(() => { statusEl.style.display = 'none'; }, 4000);
             return true;
         } else {
-            statusEl.innerText = '⚠️ Ошибка синхронизации GitHub. Проверьте токен.';
+            statusEl.innerText = '⚠️ Ошибка GitHub. Проверьте правильность токена.';
+            alert('⚠️ Не удалось обновить GitHub. Проверьте права токена (галочка repo).');
             return false;
         }
     }
@@ -644,11 +497,8 @@
         if (isOwner) renderAdminProductList();
     }
 
-    // УПРАВЛЕНИЕ КАТЕГОРИЯМИ (ДОБАВЛЕНИЕ / УДАЛЕНИЕ / ПЕРЕИМЕНОВАНИЕ)
     function renderGenderTabs() {
         const wrap = document.getElementById('gender-tabs');
-        const activeCategories = customGenderOrder.filter(c => c === 'ALL' || products.some(p => p.gender === c) || c === customGenderOrder[1]);
-
         wrap.innerHTML = customGenderOrder.map(g => {
             const label = g === 'ALL' ? 'Все' : g;
             return `<button class="tab-btn ${selectedGender === g ? 'active' : ''}" onclick="setGender('${g}')">${label}</button>`;
@@ -679,10 +529,7 @@
         const input = document.getElementById('new-category-name');
         const name = input.value.trim();
         if (!name) return;
-        if (customGenderOrder.includes(name)) {
-            alert('Такая категория уже есть!');
-            return;
-        }
+        if (customGenderOrder.includes(name)) { alert('Такая категория уже есть!'); return; }
         customGenderOrder.push(name);
         localStorage.setItem('bw_gender_order', JSON.stringify(customGenderOrder));
         input.value = '';
@@ -692,17 +539,14 @@
     }
 
     function renameCategory(idx) {
-        const realIdx = idx + 1; // пропуск ALL
+        const realIdx = idx + 1;
         const oldName = customGenderOrder[realIdx];
         const newName = document.getElementById(`cat-edit-${idx}`).value.trim();
         if (!newName || oldName === newName) return;
-
         customGenderOrder[realIdx] = newName;
-        products.forEach(p => {
-            if (p.gender === oldName) p.gender = newName;
-        });
+        products.forEach(p => { if (p.gender === oldName) p.gender = newName; });
         localStorage.setItem('bw_gender_order', JSON.stringify(customGenderOrder));
-        localStorage.setItem('bw_sneaker_catalog_v6', JSON.stringify(products));
+        localStorage.setItem('bw_sneaker_catalog_v7', JSON.stringify(products));
         renderGenderTabs();
         renderCategoryOptions();
         renderCategoryManagerUI();
@@ -711,21 +555,13 @@
     }
 
     function removeCategory(catName) {
-        if (customGenderOrder.filter(c => c !== 'ALL').length <= 1) {
-            alert('Нельзя удалить последнюю категорию!');
-            return;
-        }
-        if (!confirm(`Удалить категорию «${catName}»? Товары из нее перенесутся в первую доступную категорию.`)) return;
-
+        if (customGenderOrder.filter(c => c !== 'ALL').length <= 1) { alert('Нельзя удалить последнюю категорию!'); return; }
+        if (!confirm(`Удалить категорию «${catName}»?`)) return;
         const fallbackCat = customGenderOrder.find(c => c !== 'ALL' && c !== catName);
-        products.forEach(p => {
-            if (p.gender === catName) p.gender = fallbackCat;
-        });
-
+        products.forEach(p => { if (p.gender === catName) p.gender = fallbackCat; });
         customGenderOrder = customGenderOrder.filter(c => c !== catName);
         localStorage.setItem('bw_gender_order', JSON.stringify(customGenderOrder));
-        localStorage.setItem('bw_sneaker_catalog_v6', JSON.stringify(products));
-
+        localStorage.setItem('bw_sneaker_catalog_v7', JSON.stringify(products));
         if (selectedGender === catName) selectedGender = 'ALL';
         renderGenderTabs();
         renderCategoryOptions();
@@ -739,7 +575,6 @@
         const existingBrands = [...new Set(products.map(p => p.brand))];
         existingBrands.forEach(b => { if (!customBrandOrder.includes(b)) customBrandOrder.push(b); });
         customBrandOrder = customBrandOrder.filter(b => existingBrands.includes(b));
-
         const fullBrands = ['ALL', ...customBrandOrder];
         wrap.innerHTML = fullBrands.map(b => `
             <button class="tab-btn ${selectedBrand === b ? 'active' : ''}" onclick="setBrand('${b}')">
@@ -748,22 +583,12 @@
         `).join('');
     }
 
-    function setGender(g) {
-        selectedGender = g;
-        renderGenderTabs();
-        renderCatalog();
-    }
-
-    function setBrand(b) {
-        selectedBrand = b;
-        renderBrandTabs();
-        renderCatalog();
-    }
+    function setGender(g) { selectedGender = g; renderGenderTabs(); renderCatalog(); }
+    function setBrand(b) { selectedBrand = b; renderBrandTabs(); renderCatalog(); }
 
     function renderCatalog() {
         renderGenderTabs();
         renderBrandTabs();
-
         const q = document.getElementById('search-input').value.toLowerCase().trim();
         const grid = document.getElementById('product-grid');
         grid.innerHTML = '';
@@ -797,10 +622,7 @@
                         <div class="card-title">${p.title}</div>
                     </div>
                     <div>
-                        <div class="price-row">
-                            ${oldHtml}
-                            <span class="cur-price">${formatMoney(p.priceUSD)}</span>
-                        </div>
+                        <div class="price-row">${oldHtml}<span class="cur-price">${formatMoney(p.priceUSD)}</span></div>
                         ${adminBtnsHtml}
                     </div>
                 </div>
@@ -811,10 +633,7 @@
     function renderAdminProductList() {
         const wrap = document.getElementById('admin-products-list');
         if (!wrap) return;
-        if (products.length === 0) {
-            wrap.innerHTML = '<p style="font-size:12px; color:#777;">В каталоге пока нет товаров.</p>';
-            return;
-        }
+        if (products.length === 0) { wrap.innerHTML = '<p style="font-size:12px; color:#777;">В каталоге пока нет товаров.</p>'; return; }
         wrap.innerHTML = products.map(p => `
             <div class="cart-item">
                 <div style="display:flex; align-items:center; gap:10px;">
@@ -836,36 +655,26 @@
     function startEditProduct(id) {
         const p = products.find(x => x.id === id);
         if (!p) return;
-
         openPage('admin');
         document.getElementById('form-mode-title').innerText = `✏️ Редактирование: ${p.title}`;
         document.getElementById('cancel-edit-btn').style.display = 'inline-block';
         document.getElementById('save-prod-btn').innerText = '💾 Сохранить изменения в товаре';
         document.getElementById('adm-edit-id').value = p.id;
-
         document.getElementById('adm-gender').value = p.gender || 'Мужские';
         document.getElementById('adm-brand').value = p.brand || '';
         document.getElementById('adm-title').value = p.title || '';
-
         const cur = document.getElementById('adm-cur').value;
         document.getElementById('adm-price').value = Math.round(p.priceUSD * rates[cur].rate);
-
         const hasDisc = p.oldPriceUSD && p.oldPriceUSD > p.priceUSD;
         document.getElementById('adm-has-discount').checked = !!hasDisc;
         toggleDiscountBox();
-        if (hasDisc) {
-            document.getElementById('adm-old-price').value = Math.round(p.oldPriceUSD * rates[cur].rate);
-        }
-
+        if (hasDisc) document.getElementById('adm-old-price').value = Math.round(p.oldPriceUSD * rates[cur].rate);
         uploadedProductPhotos = [...(p.images || [])];
         renderPhotoPreviews();
-
         uploadedChartPhoto = p.sizeChartImg || "";
         renderChartPreview();
-
         uploadedVariants = [...(p.variants || [])];
         renderVariantPreviews();
-
         document.getElementById('adm-sizes').value = (p.sizes || []).map(s => `${s.size}=${s.cm}`).join(', ');
         document.getElementById('adm-desc').value = p.desc || '';
         window.scrollTo(0, 0);
@@ -897,7 +706,7 @@
         if (!confirm(`Удалить товар «${p.title}» из магазина?`)) return;
 
         products = products.filter(x => x.id !== id);
-        localStorage.setItem('bw_sneaker_catalog_v6', JSON.stringify(products));
+        localStorage.setItem('bw_sneaker_catalog_v7', JSON.stringify(products));
         renderCatalog();
         renderAdminProductList();
         if (activeProduct && activeProduct.id === id) openPage('catalog');
@@ -909,33 +718,22 @@
         const p = products.find(x => x.id === id);
         if (!p) return;
         activeProduct = p;
-
         if (resetState) {
             activeSlideIdx = 0;
             activeSize = p.sizes && p.sizes.length ? p.sizes[0].size : "41";
             activeColor = p.variants && p.variants.length ? p.variants[0].name : "Базовый";
         }
-
         document.getElementById('det-title').innerText = p.title;
         document.getElementById('det-code').innerText = `Код товара: ${p.code || 'S-' + p.id} | Категория: ${p.gender}`;
-        
         const hasDiscount = p.oldPriceUSD && p.oldPriceUSD > p.priceUSD;
         const oldEl = document.getElementById('det-old-price');
-        if (hasDiscount) {
-            oldEl.innerText = formatMoney(p.oldPriceUSD);
-            oldEl.style.display = 'inline';
-        } else {
-            oldEl.innerText = '';
-            oldEl.style.display = 'none';
-        }
-
+        if (hasDiscount) { oldEl.innerText = formatMoney(p.oldPriceUSD); oldEl.style.display = 'inline'; }
+        else { oldEl.innerText = ''; oldEl.style.display = 'none'; }
         document.getElementById('det-cur-price').innerText = formatMoney(p.priceUSD);
         document.getElementById('det-desc').innerText = p.desc || "Описание отсутствует.";
-
         updateSliderView();
         renderDetailSizes();
         renderDetailVariants();
-
         openPage('detail');
     }
 
@@ -943,9 +741,7 @@
         const imgs = activeProduct.images;
         document.getElementById('det-main-img').src = imgs[activeSlideIdx] || imgs[0];
         const dotsWrap = document.getElementById('det-dots');
-        dotsWrap.innerHTML = imgs.map((_, i) => `
-            <span class="dot ${i === activeSlideIdx ? 'active' : ''}" onclick="setSlide(${i})"></span>
-        `).join('');
+        dotsWrap.innerHTML = imgs.map((_, i) => `<span class="dot ${i === activeSlideIdx ? 'active' : ''}" onclick="setSlide(${i})"></span>`).join('');
     }
 
     function changeSlide(dir) {
@@ -954,42 +750,23 @@
         updateSliderView();
     }
 
-    function setSlide(i) {
-        activeSlideIdx = i;
-        updateSliderView();
-    }
+    function setSlide(i) { activeSlideIdx = i; updateSliderView(); }
 
     function renderDetailSizes() {
         const wrap = document.getElementById('det-sizes');
-        wrap.innerHTML = (activeProduct.sizes || []).map(s => `
-            <div class="size-box ${activeSize === s.size ? 'selected' : ''}" onclick="chooseDetailSize('${s.size}')">
-                ${s.size}
-            </div>
-        `).join('');
+        wrap.innerHTML = (activeProduct.sizes || []).map(s => `<div class="size-box ${activeSize === s.size ? 'selected' : ''}" onclick="chooseDetailSize('${s.size}')">${s.size}</div>`).join('');
     }
 
-    function chooseDetailSize(sz) {
-        activeSize = sz;
-        renderDetailSizes();
-    }
+    function chooseDetailSize(sz) { activeSize = sz; renderDetailSizes(); }
 
     function renderDetailVariants() {
         const block = document.getElementById('det-variants-block');
         const row = document.getElementById('det-variants');
         const vars = activeProduct.variants || [];
-
-        if (vars.length === 0) {
-            block.style.display = 'none';
-            return;
-        }
+        if (vars.length === 0) { block.style.display = 'none'; return; }
         block.style.display = 'block';
         document.getElementById('det-color-name').innerText = activeColor;
-
-        row.innerHTML = vars.map(v => `
-            <div class="var-thumb ${activeColor === v.name ? 'active' : ''}" onclick="chooseColorVariant('${v.name}', '${v.img}')">
-                <img src="${v.img}" alt="${v.name}">
-            </div>
-        `).join('');
+        row.innerHTML = vars.map(v => `<div class="var-thumb ${activeColor === v.name ? 'active' : ''}" onclick="chooseColorVariant('${v.name}', '${v.img}')"><img src="${v.img}" alt="${v.name}"></div>`).join('');
     }
 
     function chooseColorVariant(name, img) {
@@ -1000,76 +777,44 @@
 
     function openSizeModal() {
         if (!activeProduct) return;
-        const rows = (activeProduct.sizes || []).map(s => `
-            <tr><td><b>${s.size}</b></td><td>${s.cm || '-'}</td></tr>
-        `).join('');
-
+        const rows = (activeProduct.sizes || []).map(s => `<tr><td><b>${s.size}</b></td><td>${s.cm || '-'}</td></tr>`).join('');
         document.getElementById('modal-size-content').innerHTML = `
             <p style="font-size:12px; color:#555; margin-bottom:8px;">Модель: <b>${activeProduct.title}</b></p>
-            <table class="size-table">
-                <thead><tr><th>Размер обуви</th><th>Длина стопы (см)</th></tr></thead>
-                <tbody>${rows}</tbody>
-            </table>
+            <table class="size-table"><thead><tr><th>Размер обуви</th><th>Длина стопы (см)</th></tr></thead><tbody>${rows}</tbody></table>
         `;
-
         const chartImg = document.getElementById('modal-size-img');
-        if (activeProduct.sizeChartImg) {
-            chartImg.src = activeProduct.sizeChartImg;
-            chartImg.style.display = 'block';
-        } else {
-            chartImg.style.display = 'none';
-        }
+        if (activeProduct.sizeChartImg) { chartImg.src = activeProduct.sizeChartImg; chartImg.style.display = 'block'; }
+        else { chartImg.style.display = 'none'; }
         document.getElementById('size-modal').style.display = 'flex';
     }
 
-    function closeSizeModal() {
-        document.getElementById('size-modal').style.display = 'none';
-    }
+    function closeSizeModal() { document.getElementById('size-modal').style.display = 'none'; }
 
     function addCurrentToCart() {
         if (!activeProduct) return;
         const sizeObj = (activeProduct.sizes || []).find(s => s.size === activeSize) || { size: activeSize, cm: '' };
-        cart.push({
-            id: activeProduct.id,
-            title: activeProduct.title,
-            brand: activeProduct.brand,
-            priceUSD: activeProduct.priceUSD,
-            size: sizeObj.size,
-            cm: sizeObj.cm,
-            color: activeColor
-        });
+        cart.push({ id: activeProduct.id, title: activeProduct.title, brand: activeProduct.brand, priceUSD: activeProduct.priceUSD, size: sizeObj.size, cm: sizeObj.cm, color: activeColor });
         document.getElementById('cart-count').innerText = cart.length;
         if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
         alert(`Добавлено в корзину: ${activeProduct.title} (Размер ${sizeObj.size})`);
     }
 
-    function buyNowCurrent() {
-        addCurrentToCart();
-        openPage('cart');
-    }
+    function buyNowCurrent() { addCurrentToCart(); openPage('cart'); }
 
     function renderCart() {
         const list = document.getElementById('cart-list');
         const sumBlock = document.getElementById('cart-summary');
         list.innerHTML = '';
-
-        if (cart.length === 0) {
-            list.innerHTML = '<p style="color:var(--subtext);">Ваша корзина пуста.</p>';
-            sumBlock.style.display = 'none';
-            return;
-        }
+        if (cart.length === 0) { list.innerHTML = '<p style="color:var(--subtext);">Ваша корзина пуста.</p>'; sumBlock.style.display = 'none'; return; }
         sumBlock.style.display = 'block';
         let totalUSD = 0;
-
         cart.forEach((item, i) => {
             totalUSD += Number(item.priceUSD);
             list.innerHTML += `
                 <div class="cart-item">
                     <div>
                         <div style="font-weight:700; font-size:13px;">${item.title}</div>
-                        <div style="font-size:12px; color:var(--subtext);">
-                            Размер: <b>${item.size}</b> (${item.cm}) | Цвет: <b>${item.color}</b>
-                        </div>
+                        <div style="font-size:12px; color:var(--subtext);">Размер: <b>${item.size}</b> (${item.cm}) | Цвет: <b>${item.color}</b></div>
                         <div style="font-weight:800; font-size:13px; margin-top:3px;">${formatMoney(item.priceUSD)}</div>
                     </div>
                     <span style="cursor:pointer; font-weight:bold; padding:6px;" onclick="removeCartItem(${i})">✕</span>
@@ -1079,11 +824,7 @@
         document.getElementById('total-price').innerText = `К ОПЛАТЕ: ${formatMoney(totalUSD)} ($${Math.round(totalUSD)})`;
     }
 
-    function removeCartItem(i) {
-        cart.splice(i, 1);
-        document.getElementById('cart-count').innerText = cart.length;
-        renderCart();
-    }
+    function removeCartItem(i) { cart.splice(i, 1); document.getElementById('cart-count').innerText = cart.length; renderCart(); }
 
     function openPage(page) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -1092,11 +833,7 @@
         const navEl = document.getElementById('nav-' + page);
         if (navEl) navEl.classList.add('active');
         if (page === 'cart') renderCart();
-        if (page === 'admin') {
-            renderAdminProductList();
-            renderCategoryManagerUI();
-            renderCategoryOptions();
-        }
+        if (page === 'admin') { renderAdminProductList(); renderCategoryManagerUI(); renderCategoryOptions(); }
         window.scrollTo(0, 0);
     }
 
@@ -1108,8 +845,7 @@
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
                     const scale = Math.min(1, maxWidth / img.width);
-                    canvas.width = img.width * scale;
-                    canvas.height = img.height * scale;
+                    canvas.width = img.width * scale; canvas.height = img.height * scale;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                     resolve(canvas.toDataURL('image/jpeg', quality));
@@ -1124,19 +860,13 @@
         const dataUrl = await compressImageFile(file, maxWidth, 0.8);
         const imgbbKey = localStorage.getItem('cfg_imgbb_key');
         if (!imgbbKey) return dataUrl;
-
         try {
             const base64Clean = dataUrl.split(',')[1];
             const formData = new FormData();
             formData.append('image', base64Clean);
-            const res = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, {
-                method: 'POST',
-                body: formData
-            });
+            const res = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, { method: 'POST', body: formData });
             const json = await res.json();
-            if (json.success && json.data && json.data.url) {
-                return json.data.url;
-            }
+            if (json.success && json.data && json.data.url) return json.data.url;
         } catch (err) {}
         return dataUrl;
     }
@@ -1144,43 +874,27 @@
     function renderPhotoPreviews() {
         const preview = document.getElementById('adm-photo-preview');
         preview.innerHTML = uploadedProductPhotos.map((url, idx) => `
-            <div class="preview-item">
-                <img src="${url}">
-                <div class="preview-del" onclick="removeUploadedPhoto(${idx})">✕</div>
-            </div>
+            <div class="preview-item"><img src="${url}"><div class="preview-del" onclick="removeUploadedPhoto(${idx})">✕</div></div>
         `).join('');
     }
 
-    function removeUploadedPhoto(idx) {
-        uploadedProductPhotos.splice(idx, 1);
-        renderPhotoPreviews();
-    }
+    function removeUploadedPhoto(idx) { uploadedProductPhotos.splice(idx, 1); renderPhotoPreviews(); }
 
     async function handleMultiPhotos(input) {
         const statusEl = document.getElementById('admin-status');
-        statusEl.style.display = 'block';
-        statusEl.innerText = '⏳ Загрузка фото...';
+        statusEl.style.display = 'block'; statusEl.innerText = '⏳ Загрузка фото...';
         for (const file of input.files) {
             const url = await uploadImageSmart(file, 800);
             uploadedProductPhotos.push(url);
             renderPhotoPreviews();
         }
-        statusEl.style.display = 'none';
-        input.value = '';
+        statusEl.style.display = 'none'; input.value = '';
     }
 
     function renderChartPreview() {
         const wrap = document.getElementById('adm-chart-preview');
-        if (!uploadedChartPhoto) {
-            wrap.innerHTML = '';
-            return;
-        }
-        wrap.innerHTML = `
-            <div class="preview-item">
-                <img src="${uploadedChartPhoto}">
-                <div class="preview-del" onclick="uploadedChartPhoto=''; renderChartPreview();">✕</div>
-            </div>
-        `;
+        if (!uploadedChartPhoto) { wrap.innerHTML = ''; return; }
+        wrap.innerHTML = `<div class="preview-item"><img src="${uploadedChartPhoto}"><div class="preview-del" onclick="uploadedChartPhoto=''; renderChartPreview();">✕</div></div>`;
     }
 
     async function handleChartPhoto(input) {
@@ -1193,8 +907,7 @@
     function renderVariantPreviews() {
         document.getElementById('var-draft-list').innerHTML = uploadedVariants.map((v, idx) => `
             <div class="preview-item" style="height:auto; text-align:center; font-size:9px;">
-                <img src="${v.img}" style="height:44px;">
-                <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${v.name}</div>
+                <img src="${v.img}" style="height:44px;"><div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${v.name}</div>
                 <div class="preview-del" onclick="uploadedVariants.splice(${idx},1); renderVariantPreviews();">✕</div>
             </div>
         `).join('');
@@ -1203,20 +916,15 @@
     async function addVariantDraft() {
         const name = document.getElementById('var-color-name').value.trim();
         const fileInput = document.getElementById('var-color-file');
-        if (!name || !fileInput.files[0]) {
-            alert('Укажите название цвета и фото!');
-            return;
-        }
+        if (!name || !fileInput.files[0]) { alert('Укажите название цвета и фото!'); return; }
         const url = await uploadImageSmart(fileInput.files[0], 500);
         uploadedVariants.push({ name, img: url });
-        document.getElementById('var-color-name').value = '';
-        fileInput.value = '';
+        document.getElementById('var-color-name').value = ''; fileInput.value = '';
         renderVariantPreviews();
     }
 
     async function saveNewProduct() {
         if (!isOwner) return;
-
         const editId = document.getElementById('adm-edit-id').value;
         const gender = document.getElementById('adm-gender').value;
         const brand = document.getElementById('adm-brand').value.trim() || 'Sneakers';
@@ -1228,10 +936,7 @@
         const rawSizes = document.getElementById('adm-sizes').value.trim();
         const desc = document.getElementById('adm-desc').value.trim();
 
-        if (!title || !rawPrice) {
-            alert('Заполните название и цену!');
-            return;
-        }
+        if (!title || !rawPrice) { alert('Заполните название и цену!'); return; }
 
         const priceUSD = +(rawPrice / rates[inputCur].rate).toFixed(2);
         const oldPriceUSD = (hasDiscount && rawOldPrice > 0) ? +(rawOldPrice / rates[inputCur].rate).toFixed(2) : 0;
@@ -1244,15 +949,13 @@
         const images = uploadedProductPhotos.length > 0 ? uploadedProductPhotos : ['https://images.unsplash.com/photo-1552346154-21d32810aba3?w=600'];
 
         const btn = document.getElementById('save-prod-btn');
-        btn.disabled = true;
-        btn.innerText = '⏳ Сохранение...';
+        btn.disabled = true; btn.innerText = '⏳ Сохранение...';
 
         if (editId) {
             const idx = products.findIndex(x => String(x.id) === String(editId));
             if (idx !== -1) {
                 products[idx] = {
-                    ...products[idx],
-                    gender, brand, title, priceUSD, oldPriceUSD, images,
+                    ...products[idx], gender, brand, title, priceUSD, oldPriceUSD, images,
                     sizes: parsedSizes.length ? parsedSizes : [{ size: "41", cm: "26 см" }],
                     sizeChartImg: uploadedChartPhoto,
                     variants: uploadedVariants.length ? uploadedVariants : [{ name: "Основной", img: images[0] }],
@@ -1272,14 +975,14 @@
             products.unshift(newProd);
         }
 
-        localStorage.setItem('bw_sneaker_catalog_v6', JSON.stringify(products));
+        localStorage.setItem('bw_sneaker_catalog_v7', JSON.stringify(products));
         renderCatalog();
         renderAdminProductList();
 
-        await syncCatalogToGitHub();
+        const success = await syncCatalogToGitHub();
         btn.disabled = false;
         resetAdminForm();
-        alert('✅ Успешно сохранено и синхронизировано!');
+        if (success) alert('✅ Успешно сохранено и синхронизировано с облаком!');
     }
 
     function submitOrder() {
@@ -1291,25 +994,18 @@
         const payment = document.getElementById('ord-pay').value;
         const currency = document.getElementById('currency').value;
 
-        if (!name || !phone || !city || !branch) {
-            alert('Заполните обязательные поля доставки!');
-            return;
-        }
-
+        if (!name || !phone || !city || !branch) { alert('Заполните обязательные поля доставки!'); return; }
         const totalUSD = Math.round(cart.reduce((s, i) => s + Number(i.priceUSD), 0));
 
         tg.sendData(JSON.stringify({
             action: 'new_order',
             name, phone, delivery, city, branch, payment, currency,
-            total_usd: totalUSD,
-            total_converted: formatMoney(totalUSD),
+            total_usd: totalUSD, total_converted: formatMoney(totalUSD),
             items: cart.map(i => `${i.title} | Цвет: ${i.color} | Размер: ${i.size} (${i.cm})`)
         }));
     }
 
-    if (isOwner) {
-        unlockAdminUI();
-    }
+    if (isOwner) { unlockAdminUI(); }
     loadSharedCatalog();
 </script>
 </body>
