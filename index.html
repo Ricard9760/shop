@@ -403,23 +403,43 @@
 
     async function loadSharedCatalog() {
         const repo = detectGitHubRepo();
-        const token = localStorage.getItem('cfg_gh_token');
+        let cloudProducts = null;
         try {
             const res = await fetch(`https://raw.githubusercontent.com/${repo}/main/products.json?t=${Date.now()}`);
             if (res && res.ok) {
                 const cloudData = await res.json();
-                if (Array.isArray(cloudData)) {
-                    products = cloudData;
-                    localStorage.setItem('bw_sneaker_catalog_v7', JSON.stringify(products));
+                if (Array.isArray(cloudData) && cloudData.length > 0) {
+                    cloudProducts = cloudData;
                 }
-            } else {
-                const local = localStorage.getItem('bw_sneaker_catalog_v7');
-                if (local) products = JSON.parse(local);
             }
-        } catch (e) {
-            const local = localStorage.getItem('bw_sneaker_catalog_v7');
-            if (local) products = JSON.parse(local);
+        } catch (e) {}
+
+        if (cloudProducts) {
+            products = cloudProducts;
+        } else {
+            const local = localStorage.getItem('bw_sneaker_catalog_v8');
+            if (local) {
+                products = JSON.parse(local);
+            } else {
+                products = [
+                    {
+                        id: 2351716,
+                        code: "S-2351716",
+                        gender: "Мужские",
+                        brand: "Asics",
+                        title: "Asics Gel NYC Graphite Grey Black",
+                        priceUSD: 100,
+                        oldPriceUSD: 212,
+                        images: ["https://images.unsplash.com/photo-1539185441755-769473a23570?w=700"],
+                        sizes: [{ size: "41", cm: "26 см" }, { size: "42", cm: "26.5 см" }],
+                        sizeChartImg: "",
+                        variants: [{ name: "Graphite Grey", img: "https://images.unsplash.com/photo-1539185441755-769473a23570?w=400" }],
+                        desc: "Модель Asics Gel-NYC."
+                    }
+                ];
+            }
         }
+        localStorage.setItem('bw_sneaker_catalog_v8', JSON.stringify(products));
 
         renderCatalog();
         if (isOwner) {
@@ -432,7 +452,7 @@
     async function syncCatalogToGitHub() {
         const repo = document.getElementById('cfg-repo').value.trim() || detectGitHubRepo();
         const token = localStorage.getItem('cfg_gh_token');
-        if (!repo || !token) {
+        if (!token) {
             alert('⚠️ Ошибка: не введен GitHub Token в настройках общей базы!');
             return false;
         }
@@ -546,7 +566,7 @@
         customGenderOrder[realIdx] = newName;
         products.forEach(p => { if (p.gender === oldName) p.gender = newName; });
         localStorage.setItem('bw_gender_order', JSON.stringify(customGenderOrder));
-        localStorage.setItem('bw_sneaker_catalog_v7', JSON.stringify(products));
+        localStorage.setItem('bw_sneaker_catalog_v8', JSON.stringify(products));
         renderGenderTabs();
         renderCategoryOptions();
         renderCategoryManagerUI();
@@ -561,7 +581,7 @@
         products.forEach(p => { if (p.gender === catName) p.gender = fallbackCat; });
         customGenderOrder = customGenderOrder.filter(c => c !== catName);
         localStorage.setItem('bw_gender_order', JSON.stringify(customGenderOrder));
-        localStorage.setItem('bw_sneaker_catalog_v7', JSON.stringify(products));
+        localStorage.setItem('bw_sneaker_catalog_v8', JSON.stringify(products));
         if (selectedGender === catName) selectedGender = 'ALL';
         renderGenderTabs();
         renderCategoryOptions();
@@ -706,7 +726,7 @@
         if (!confirm(`Удалить товар «${p.title}» из магазина?`)) return;
 
         products = products.filter(x => x.id !== id);
-        localStorage.setItem('bw_sneaker_catalog_v7', JSON.stringify(products));
+        localStorage.setItem('bw_sneaker_catalog_v8', JSON.stringify(products));
         renderCatalog();
         renderAdminProductList();
         if (activeProduct && activeProduct.id === id) openPage('catalog');
@@ -975,7 +995,7 @@
             products.unshift(newProd);
         }
 
-        localStorage.setItem('bw_sneaker_catalog_v7', JSON.stringify(products));
+        localStorage.setItem('bw_sneaker_catalog_v8', JSON.stringify(products));
         renderCatalog();
         renderAdminProductList();
 
