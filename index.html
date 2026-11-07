@@ -202,7 +202,29 @@
 
 <div id="page-admin" class="section pad-section">
     <h2 style="margin-bottom: 10px; font-size:18px; text-transform:uppercase;">⚙️ Панель владельца</h2>
-    <div id="admin-status" class="status-box">✅ Управление каталогом через Telegram-бота включено. Токены больше не нужны!</div>
+    
+    <details id="cloud-settings-box" style="border:1px solid var(--black); padding:10px; margin-bottom:16px; background:var(--surface);">
+        <summary style="font-size:12px; font-weight:800; cursor:pointer; text-transform:uppercase;">
+            ☁️ Настройка GitHub (чтобы видели все)
+        </summary>
+        <div style="margin-top:10px;">
+            <div class="form-group">
+                <label>GitHub Репозиторий</label>
+                <input type="text" id="cfg-repo" placeholder="Ricard9760/shop">
+            </div>
+            <div class="form-group">
+                <label>GitHub Token (ghp_...)</label>
+                <input type="password" id="cfg-gh-token" placeholder="ghp_xxxxxxxxxxxx">
+            </div>
+            <div class="form-group">
+                <label>ImgBB API Key (для фото)</label>
+                <input type="password" id="cfg-imgbb-key" placeholder="api.imgbb.com ключ">
+            </div>
+            <button class="btn-black" style="padding:9px;" onclick="saveCloudConfig()">💾 Сохранить настройки</button>
+        </div>
+    </details>
+
+    <div id="admin-status" class="status-box" style="display:none;"></div>
     
     <details style="border:1px solid var(--black); padding:10px; margin-bottom:16px; background:var(--surface);">
         <summary style="font-size:12px; font-weight:800; cursor:pointer; text-transform:uppercase;">
@@ -284,7 +306,7 @@
         <button type="button" class="btn-outline" style="padding:7px;" onclick="addVariantDraft()">+ Прикрепить цвет</button>
         <div id="var-draft-list" class="preview-strip" style="margin-top:8px;"></div>
     </div>
-    <button id="save-prod-btn" class="btn-black" onclick="saveNewProduct()">✅ Отправить боту для публикации</button>
+    <button id="save-prod-btn" class="btn-black" onclick="saveNewProduct()">✅ Сохранить и опубликовать для всех</button>
     <h3 style="margin: 24px 0 10px; font-size:15px; text-transform:uppercase; border-top:2px solid var(--black); padding-top:16px;">
         📦 Управление каталогом
     </h3>
@@ -309,9 +331,31 @@
         isOwner = true;
         document.getElementById('nav-admin').style.display = 'block';
         document.getElementById('det-admin-btns').style.display = 'flex';
+        initCloudSettingsForm();
         renderAdminProductList();
         renderCategoryOptions();
         renderCategoryManagerUI();
+    }
+
+    function detectGitHubRepo() {
+        const saved = localStorage.getItem('cfg_gh_repo');
+        if (saved) return saved;
+        return 'Ricard9760/shop';
+    }
+
+    function initCloudSettingsForm() {
+        document.getElementById('cfg-repo').value = detectGitHubRepo();
+        document.getElementById('cfg-gh-token').value = localStorage.getItem('cfg_gh_token') || '';
+        document.getElementById('cfg-imgbb-key').value = localStorage.getItem('cfg_imgbb_key') || '';
+    }
+
+    function saveCloudConfig() {
+        localStorage.setItem('cfg_gh_repo', document.getElementById('cfg-repo').value.trim());
+        localStorage.setItem('cfg_gh_token', document.getElementById('cfg-gh-token').value.trim());
+        localStorage.setItem('cfg_imgbb_key', document.getElementById('cfg-imgbb-key').value.trim());
+        alert('✅ Настройки сохранены!');
+        document.getElementById('cloud-settings-box').open = false;
+        loadSharedCatalog();
     }
 
     let logoTapCount = 0;
@@ -362,8 +406,9 @@
     let uploadedVariants = [];
 
     async function loadSharedCatalog() {
+        const repo = detectGitHubRepo();
         try {
-            const res = await fetch(`./products.json?t=${Date.now()}`);
+            const res = await fetch(`https://raw.githubusercontent.com/${repo}/main/products.json?t=${Date.now()}`);
             if (res && res.ok) {
                 const cloudData = await res.json();
                 if (Array.isArray(cloudData)) {
@@ -373,7 +418,7 @@
         } catch (e) {}
 
         if (products.length === 0) {
-            const local = localStorage.getItem('bw_sneaker_catalog_v10');
+            const local = localStorage.getItem('bw_sneaker_catalog_v11');
             if (local) {
                 products = JSON.parse(local);
             } else {
@@ -395,13 +440,69 @@
                 ];
             }
         }
-        localStorage.setItem('bw_sneaker_catalog_v10', JSON.stringify(products));
+        localStorage.setItem('bw_sneaker_catalog_v11', JSON.stringify(products));
 
         renderCatalog();
         if (isOwner) {
             renderAdminProductList();
             renderCategoryOptions();
             renderCategoryManagerUI();
+        }
+    }
+
+    async function syncCatalogToGitHub() {
+        const repo = document.getElementById('cfg-repo').value.trim() || detectGitHubRepo();
+        const token = localStorage.getItem('cfg_gh_token');
+        if (!token) {
+            alert('⚠️ Ошибка: не введен GitHub Token в настройках админки!');
+            return false;
+        }
+
+        const statusEl = document.getElementById('admin-status');
+        statusEl.style.display = 'block';
+        statusEl.innerText = '⏳ Сохранение изменений для всех пользователей...';
+
+        const apiUrl = `https://api.github.com/repos/${repo}/contents/products.json`;
+        let sha = null;
+
+        try {
+            const getRes = await fetch(apiUrl, {
+                headers: { 'Authorization': `token ${token}` }
+            });
+            if (getRes.ok) {
+                const fileData = await getRes.json();
+                sha = fileData.sha;
+            }
+        } catch (e) {}
+
+        const contentStr = JSON.stringify(products, null, 2);
+        const contentBase64 = btoa(unescape(encodeURIComponent(contentStr)));
+
+        const bodyObj = {
+            message: "Update shared sneaker catalog",
+            content: contentBase64
+        };
+        if (sha) bodyObj.sha = sha;
+
+        const putRes = await fetch(apiUrl, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `token ${token}`,
+                'Content-Type': 'application/json',
+                'Accept': 'application/vnd.github.v3+json'
+            },
+            body: JSON.stringify(bodyObj)
+        });
+
+        if (putRes.ok) {
+            statusEl.innerText = '✅ Успешно! Все пользователи видят изменения.';
+            setTimeout(() => { statusEl.style.display = 'none'; }, 4000);
+            return true;
+        } else {
+            const errJson = await putRes.json().catch(() => ({}));
+            statusEl.innerText = '⚠️ Ошибка синхронизации с GitHub.';
+            alert('⚠️ Ошибка GitHub: ' + (errJson.message || putRes.statusText));
+            return false;
         }
     }
 
@@ -457,7 +558,7 @@
         renderCategoryManagerUI();
     }
 
-    function removeCategory(catName) {
+    async function removeCategory(catName) {
         if (customGenderOrder.filter(c => c !== 'ALL').length <= 1) { alert('Нельзя удалить последнюю категорию!'); return; }
         if (!confirm(`Удалить категорию «${catName}»?`)) return;
         const fallbackCat = customGenderOrder.find(c => c !== 'ALL' && c !== catName);
@@ -469,8 +570,7 @@
         renderCategoryOptions();
         renderCategoryManagerUI();
         renderCatalog();
-        
-        tg.sendData(JSON.stringify({ action: 'update_catalog', products }));
+        await syncCatalogToGitHub();
     }
 
     function renderBrandTabs() {
@@ -586,7 +686,7 @@
     function resetAdminForm() {
         document.getElementById('form-mode-title').innerText = '➕ Новый товар';
         document.getElementById('cancel-edit-btn').style.display = 'none';
-        document.getElementById('save-prod-btn').innerText = '✅ Отправить боту для публикации';
+        document.getElementById('save-prod-btn').innerText = '✅ Сохранить и опубликовать для всех';
         document.getElementById('adm-edit-id').value = '';
         document.getElementById('adm-brand').value = '';
         document.getElementById('adm-title').value = '';
@@ -609,14 +709,12 @@
         if (!confirm(`Удалить товар «${p.title}»?`)) return;
 
         products = products.filter(x => x.id !== id);
-        localStorage.setItem('bw_sneaker_catalog_v10', JSON.stringify(products));
+        localStorage.setItem('bw_sneaker_catalog_v11', JSON.stringify(products));
         renderCatalog();
         renderAdminProductList();
         if (activeProduct && activeProduct.id === id) openPage('catalog');
 
-        // Отправляем боту команду на удаление товара
-        tg.sendData(JSON.stringify({ action: 'update_catalog', products }));
-        alert('✅ Товар удален через бота!');
+        await syncCatalogToGitHub();
     }
 
     function openProductDetail(id, resetState = true) {
@@ -763,6 +861,16 @@
 
     async function uploadImageSmart(file, maxWidth = 800) {
         const dataUrl = await compressImageFile(file, maxWidth, 0.8);
+        const imgbbKey = localStorage.getItem('cfg_imgbb_key');
+        if (!imgbbKey) return dataUrl;
+        try {
+            const base64Clean = dataUrl.split(',')[1];
+            const formData = new FormData();
+            formData.append('image', base64Clean);
+            const res = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, { method: 'POST', body: formData });
+            const json = await res.json();
+            if (json.success && json.data && json.data.url) return json.data.url;
+        } catch (err) {}
         return dataUrl;
     }
 
@@ -776,12 +884,14 @@
     function removeUploadedPhoto(idx) { uploadedProductPhotos.splice(idx, 1); renderPhotoPreviews(); }
 
     async function handleMultiPhotos(input) {
+        const statusEl = document.getElementById('admin-status');
+        statusEl.style.display = 'block'; statusEl.innerText = '⏳ Загрузка фото...';
         for (const file of input.files) {
             const url = await uploadImageSmart(file, 800);
             uploadedProductPhotos.push(url);
             renderPhotoPreviews();
         }
-        input.value = '';
+        statusEl.style.display = 'none'; input.value = '';
     }
 
     function renderChartPreview() {
@@ -842,7 +952,7 @@
         const images = uploadedProductPhotos.length > 0 ? uploadedProductPhotos : ['https://images.unsplash.com/photo-1552346154-21d32810aba3?w=600'];
 
         const btn = document.getElementById('save-prod-btn');
-        btn.disabled = true; btn.innerText = '⏳ Отправка боту...';
+        btn.disabled = true; btn.innerText = '⏳ Сохранение в облако...';
 
         if (editId) {
             const idx = products.findIndex(x => String(x.id) === String(editId));
@@ -868,16 +978,14 @@
             products.unshift(newProd);
         }
 
-        localStorage.setItem('bw_sneaker_catalog_v10', JSON.stringify(products));
+        localStorage.setItem('bw_sneaker_catalog_v11', JSON.stringify(products));
         renderCatalog();
         renderAdminProductList();
 
-        // Передаем обновленный список боту
-        tg.sendData(JSON.stringify({ action: 'update_catalog', products }));
-        
+        const success = await syncCatalogToGitHub();
         btn.disabled = false;
         resetAdminForm();
-        alert('✅ Товар отправлен боту! Изменения применены.');
+        if (success) alert('✅ Успешно! Товар опубликован для всех пользователей.');
     }
 
     function submitOrder() {
