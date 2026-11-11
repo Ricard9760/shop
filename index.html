@@ -3,98 +3,310 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SNEAKERS TMA</title>
+    <title>TÉNÉBRIS</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg: #ffffff; --surface: #f5f5f5; --text: #111111; --subtext: #777777;
-            --border: #e0e0e0; --black: #000000; --danger: #d93025;
+            --bg: #050505;
+            --surface: #0d0d0d;
+            --surface-2: #151515;
+            --text: #f5f5f5;
+            --subtext: #7a7a7a;
+            --border: #262626;
+            --accent: #ffffff;
+            --glow: 0 0 14px rgba(255, 255, 255, 0.38);
+            --glow-sm: 0 0 8px rgba(255, 255, 255, 0.25);
+            --danger: #ff3b30;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-        body { background-color: var(--bg); color: var(--text); padding-bottom: 85px; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif; }
+        body {
+            background-color: var(--bg);
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+            background-size: 36px 36px;
+            color: var(--text);
+            padding-bottom: 90px;
+            -webkit-tap-highlight-color: transparent;
+            min-height: 100vh;
+        }
         header {
-            position: sticky; top: 0; z-index: 20; background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(8px);
-            padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 20;
+            background: rgba(5, 5, 5, 0.88);
+            backdrop-filter: blur(12px);
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
         }
-        .logo-box { display: flex; align-items: center; gap: 8px; font-weight: 900; font-size: 17px; letter-spacing: 2.5px; cursor: pointer; user-select: none; }
-        .logo-icon { border: 2px solid var(--black); padding: 2px 5px; font-size: 13px; font-weight: 900; }
-        .currency-select { background: var(--bg); color: var(--text); border: 1px solid var(--black); padding: 5px 8px; font-weight: 700; font-size: 12px; outline: none; text-transform: uppercase; }
-        .search-wrap { padding: 12px 16px 6px; }
-        .search-input { width: 100%; background: var(--surface); border: none; border-radius: 20px; padding: 10px 16px; font-size: 14px; outline: none; color: var(--text); }
+        .logo-box {
+            display: flex; align-items: center; gap: 10px;
+            font-weight: 900; font-size: 17px; letter-spacing: 3.5px;
+            cursor: pointer; user-select: none; color: var(--accent);
+            text-shadow: 0 0 10px rgba(255,255,255,0.45);
+        }
+        .logo-icon {
+            border: 1.5px solid var(--accent);
+            padding: 2px 6px; font-size: 13px; font-weight: 900;
+            box-shadow: var(--glow-sm);
+            background: rgba(255,255,255,0.04);
+        }
+        .currency-select {
+            background: var(--surface); color: var(--text);
+            border: 1px solid var(--border); padding: 6px 10px;
+            font-weight: 700; font-size: 11px; outline: none;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        .currency-select:focus { border-color: var(--accent); box-shadow: var(--glow-sm); }
+        .search-wrap { padding: 14px 16px 6px; }
+        .search-input {
+            width: 100%; background: var(--surface);
+            border: 1px solid var(--border); padding: 11px 16px;
+            font-size: 13px; outline: none; color: var(--text);
+            letter-spacing: 0.4px; transition: 0.2s;
+        }
+        .search-input:focus { border-color: var(--accent); box-shadow: var(--glow-sm); }
+        .search-input::placeholder { color: var(--subtext); }
         .tabs { display: flex; gap: 8px; padding: 8px 16px; overflow-x: auto; scrollbar-width: none; }
         .tabs::-webkit-scrollbar { display: none; }
-        .tab-btn { background: var(--bg); color: var(--text); border: 1px solid var(--border); padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; text-transform: uppercase; }
-        .tab-btn.active { background: var(--black); color: #fff; border-color: var(--black); }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 8px 16px; }
-        .card { position: relative; border: 1px solid var(--border); display: flex; flex-direction: column; justify-content: space-between; padding: 10px; cursor: pointer; background: var(--bg); }
-        .sale-badge { position: absolute; top: 8px; left: 8px; background: var(--black); color: #fff; font-size: 10px; font-weight: 800; padding: 3px 6px; text-transform: uppercase; z-index: 2; }
-        .card img { width: 100%; height: 140px; object-fit: contain; background: #fafafa; margin-bottom: 8px; }
-        .card-brand { font-size: 10px; color: var(--subtext); text-transform: uppercase; letter-spacing: 0.5px; }
-        .card-title { font-size: 13px; font-weight: 700; margin: 3px 0 6px; line-height: 1.25; }
+        .tab-btn {
+            background: var(--surface); color: var(--subtext);
+            border: 1px solid var(--border); padding: 8px 14px;
+            font-size: 11px; font-weight: 700; cursor: pointer;
+            white-space: nowrap; text-transform: uppercase;
+            letter-spacing: 1.2px; transition: 0.2s;
+        }
+        .tab-btn.active {
+            background: var(--accent); color: #000;
+            border-color: var(--accent); box-shadow: var(--glow);
+        }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 10px 16px; }
+        .card {
+            position: relative; border: 1px solid var(--border);
+            display: flex; flex-direction: column; justify-content: space-between;
+            padding: 10px; cursor: pointer; background: rgba(13, 13, 13, 0.9);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .card:active { border-color: var(--accent); box-shadow: var(--glow-sm); }
+        .sale-badge {
+            position: absolute; top: 8px; left: 8px;
+            background: var(--accent); color: #000;
+            font-size: 10px; font-weight: 900; padding: 3px 6px;
+            text-transform: uppercase; z-index: 2;
+            box-shadow: var(--glow-sm); letter-spacing: 0.5px;
+        }
+        .card img {
+            width: 100%; height: 145px; object-fit: contain;
+            background: #080808; margin-bottom: 10px;
+            border: 1px solid #161616;
+        }
+        .card-brand { font-size: 9px; color: var(--subtext); text-transform: uppercase; letter-spacing: 1px; }
+        .card-title { font-size: 13px; font-weight: 700; margin: 4px 0 8px; line-height: 1.25; color: var(--text); }
         .price-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-        .old-price { font-size: 12px; color: #999; text-decoration: line-through; }
-        .cur-price { font-size: 14px; font-weight: 800; color: var(--black); }
-        .admin-card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 8px; padding-top: 6px; border-top: 1px dashed var(--border); }
-        .adm-mini-btn { font-size: 11px; font-weight: 700; padding: 5px; border: 1px solid var(--black); background: var(--bg); cursor: pointer; text-align: center; }
-        .adm-mini-btn.del { border-color: var(--danger); color: var(--danger); }
+        .old-price { font-size: 11px; color: var(--subtext); text-decoration: line-through; }
+        .cur-price { font-size: 14px; font-weight: 800; color: var(--accent); text-shadow: 0 0 8px rgba(255,255,255,0.25); }
+        .admin-card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); }
+        .adm-mini-btn {
+            font-size: 10px; font-weight: 700; padding: 6px;
+            border: 1px solid var(--border); background: var(--surface-2);
+            color: var(--text); cursor: pointer; text-align: center;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .adm-mini-btn:active { border-color: var(--accent); }
+        .adm-mini-btn.del { border-color: rgba(255, 59, 48, 0.5); color: var(--danger); }
         .section { display: none; }
         .section.active { display: block; }
-        .detail-wrap { padding: 12px 16px; }
-        .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; margin-bottom: 12px; cursor: pointer; text-transform: uppercase; }
-        .slider-box { position: relative; width: 100%; height: 270px; background: #fafafa; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid var(--border); }
-        .slider-box img { width: 100%; height: 100%; object-fit: contain; }
-        .slide-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.85); border: 1px solid var(--border); width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; user-select: none; }
+        .detail-wrap { padding: 14px 16px; }
+        .back-link {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 11px; font-weight: 700; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 1.2px; color: var(--subtext);
+        }
+        .back-link:hover { color: var(--accent); }
+        .slider-box {
+            position: relative; width: 100%; height: 290px;
+            background: #080808; display: flex; align-items: center; justify-content: center;
+            overflow: hidden; border: 1px solid var(--border);
+        }
+        .slider-box img { width: 100%; height: 100%; object-fit: contain; cursor: zoom-in; }
+        .zoom-hint {
+            position: absolute; bottom: 8px; right: 8px;
+            background: rgba(0, 0, 0, 0.75); border: 1px solid var(--border);
+            color: var(--text); font-size: 10px; padding: 4px 8px;
+            pointer-events: none; letter-spacing: 0.5px; text-transform: uppercase;
+        }
+        .slide-arrow {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            background: rgba(10, 10, 10, 0.85); border: 1px solid var(--border);
+            color: var(--accent); width: 34px; height: 34px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; cursor: pointer; user-select: none; z-index: 5;
+        }
+        .slide-arrow:active { border-color: var(--accent); box-shadow: var(--glow-sm); }
         .slide-arrow.left { left: 8px; } .slide-arrow.right { right: 8px; }
-        .dots { display: flex; justify-content: center; gap: 6px; margin: 10px 0 14px; }
-        .dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--black); background: transparent; cursor: pointer; }
-        .dot.active { background: var(--black); }
-        .detail-title { font-size: 18px; font-weight: 800; line-height: 1.3; margin-bottom: 6px; }
-        .detail-code { font-size: 12px; color: var(--subtext); margin-bottom: 12px; }
+        .dots { display: flex; justify-content: center; gap: 6px; margin: 12px 0 16px; }
+        .dot { width: 7px; height: 7px; border: 1px solid var(--subtext); background: transparent; cursor: pointer; transition: 0.2s; }
+        .dot.active { background: var(--accent); border-color: var(--accent); box-shadow: var(--glow-sm); }
+        .detail-title { font-size: 18px; font-weight: 800; line-height: 1.3; margin-bottom: 6px; letter-spacing: 0.3px; }
+        .detail-code { font-size: 11px; color: var(--subtext); margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.8px; }
         .detail-prices { display: flex; align-items: baseline; gap: 12px; margin-bottom: 16px; }
-        .detail-old { font-size: 16px; color: #999; text-decoration: line-through; }
-        .detail-cur { font-size: 20px; font-weight: 800; }
+        .detail-old { font-size: 15px; color: var(--subtext); text-decoration: line-through; }
+        .detail-cur { font-size: 22px; font-weight: 900; color: var(--accent); text-shadow: var(--glow-sm); }
         .sizes-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 12px; }
-        .size-box { border: 1px solid var(--border); padding: 12px 0; text-align: center; font-size: 14px; font-weight: 600; cursor: pointer; background: var(--bg); }
-        .size-box.selected { border: 2px solid var(--black); font-weight: 800; }
-        .size-chart-link { display: inline-block; font-size: 13px; color: var(--subtext); text-decoration: underline; margin-bottom: 18px; cursor: pointer; }
+        .size-box {
+            border: 1px solid var(--border); padding: 12px 0;
+            text-align: center; font-size: 13px; font-weight: 600;
+            cursor: pointer; background: var(--surface); color: var(--subtext);
+            transition: 0.2s;
+        }
+        .size-box.selected {
+            border: 1.5px solid var(--accent); color: #000;
+            background: var(--accent); font-weight: 900;
+            box-shadow: var(--glow);
+        }
+        .size-chart-link {
+            display: inline-block; font-size: 12px; color: var(--subtext);
+            text-decoration: underline; margin-bottom: 18px; cursor: pointer;
+            letter-spacing: 0.4px;
+        }
         .action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 22px; }
-        .btn-black { background: var(--black); color: #fff; border: 1px solid var(--black); padding: 13px 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; text-align: center; width: 100%; }
-        .btn-black:disabled { opacity: 0.5; cursor: not-allowed; }
-        .btn-outline { background: var(--bg); color: var(--black); border: 1px solid var(--black); padding: 13px 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; text-align: center; width: 100%; }
-        .variants-title { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
-        .variants-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 18px; }
-        .var-thumb { width: 64px; height: 64px; border: 1px solid var(--border); padding: 3px; cursor: pointer; flex-shrink: 0; background: #fafafa; }
-        .var-thumb.active { border: 2px solid var(--black); }
+        .btn-black {
+            background: var(--accent); color: #000;
+            border: 1px solid var(--accent); padding: 13px 8px;
+            font-size: 11px; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 1.2px; cursor: pointer; text-align: center; width: 100%;
+            box-shadow: var(--glow); transition: 0.2s;
+        }
+        .btn-black:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+        .btn-outline {
+            background: var(--surface); color: var(--accent);
+            border: 1px solid var(--accent); padding: 13px 8px;
+            font-size: 11px; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 1.2px; cursor: pointer; text-align: center; width: 100%;
+        }
+        .btn-outline:active { background: var(--accent); color: #000; }
+        .variants-title { font-size: 12px; font-weight: 700; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--subtext); }
+        .variants-title span { color: var(--accent); }
+        .variants-row { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 18px; }
+        .var-thumb {
+            width: 68px; height: 68px; border: 1px solid var(--border);
+            padding: 3px; cursor: pointer; flex-shrink: 0; background: #080808;
+            position: relative; transition: 0.2s;
+        }
+        .var-thumb.active { border: 1.5px solid var(--accent); box-shadow: var(--glow-sm); }
         .var-thumb img { width: 100%; height: 100%; object-fit: contain; }
-        .desc-box { border-top: 1px solid var(--border); padding-top: 14px; font-size: 14px; line-height: 1.5; color: #333; white-space: pre-line; }
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 50; display: none; align-items: center; justify-content: center; padding: 16px; }
-        .modal-card { background: var(--bg); width: 100%; max-width: 400px; padding: 18px; border: 1px solid var(--black); max-height: 85vh; overflow-y: auto; }
-        .size-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
-        .size-table th, .size-table td { border: 1px solid var(--border); padding: 8px; text-align: center; }
-        .size-table th { background: var(--surface); font-weight: 700; }
+        .var-count-badge {
+            position: absolute; bottom: 2px; right: 2px;
+            background: rgba(0,0,0,0.8); color: #fff;
+            font-size: 9px; font-weight: 700; padding: 1px 4px;
+            border: 1px solid var(--border);
+        }
+        .desc-box { border-top: 1px solid var(--border); padding-top: 14px; font-size: 13px; line-height: 1.6; color: #ccc; white-space: pre-line; }
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(6px); z-index: 50; display: none;
+            align-items: center; justify-content: center; padding: 16px;
+        }
+        .modal-card {
+            background: var(--surface); width: 100%; max-width: 400px;
+            padding: 18px; border: 1px solid var(--accent);
+            box-shadow: var(--glow); max-height: 85vh; overflow-y: auto;
+        }
+        .size-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12px; }
+        .size-table th, .size-table td { border: 1px solid var(--border); padding: 8px; text-align: center; color: var(--text); }
+        .size-table th { background: var(--surface-2); font-weight: 700; text-transform: uppercase; }
         .pad-section { padding: 16px; }
         .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 5px; text-transform: uppercase; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid var(--black); background: var(--bg); color: var(--text); font-size: 14px; border-radius: 0; outline: none; }
-        .checkbox-row { display: flex; align-items: center; gap: 8px; padding: 10px; border: 1px solid var(--black); background: var(--surface); margin-bottom: 12px; cursor: pointer; font-size: 13px; font-weight: 700; }
-        .checkbox-row input { width: 18px; height: 18px; accent-color: var(--black); }
-        .cart-item { display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); padding: 10px; margin-bottom: 8px; background: #fff; }
+        .form-group label { display: block; font-size: 11px; font-weight: 700; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--subtext); }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 10px; border: 1px solid var(--border);
+            background: var(--surface); color: var(--text);
+            font-size: 13px; border-radius: 0; outline: none;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: var(--accent); box-shadow: var(--glow-sm);
+        }
+        .checkbox-row {
+            display: flex; align-items: center; gap: 8px; padding: 10px;
+            border: 1px solid var(--border); background: var(--surface);
+            margin-bottom: 12px; cursor: pointer; font-size: 12px; font-weight: 700;
+        }
+        .checkbox-row input { width: 18px; height: 18px; accent-color: var(--accent); }
+        .cart-item {
+            display: flex; justify-content: space-between; align-items: center;
+            border: 1px solid var(--border); padding: 12px;
+            margin-bottom: 8px; background: var(--surface);
+        }
         .preview-strip { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
-        .preview-item { position: relative; width: 56px; height: 56px; border: 1px solid var(--border); }
+        .preview-item { position: relative; width: 58px; height: 58px; border: 1px solid var(--border); background: #080808; }
         .preview-item img { width: 100%; height: 100%; object-fit: cover; }
-        .preview-del { position: absolute; top: -6px; right: -6px; background: var(--black); color: #fff; width: 18px; height: 18px; font-size: 11px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 12px 0; z-index: 30; }
-        .nav-item { color: var(--subtext); font-size: 12px; font-weight: 700; text-transform: uppercase; cursor: pointer; }
-        .nav-item.active { color: var(--black); text-decoration: underline; text-underline-offset: 4px; }
-        .status-box { padding: 10px; margin-bottom: 12px; font-size: 12px; font-weight: 700; border: 1px solid var(--black); background: #f0fff4; display: none; }
-        .order-row-drag { display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); padding: 8px 10px; margin-bottom: 6px; background: #fafafa; }
+        .preview-del {
+            position: absolute; top: -6px; right: -6px;
+            background: var(--accent); color: #000;
+            width: 18px; height: 18px; font-size: 11px; font-weight: 900;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+        }
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: rgba(5, 5, 5, 0.94); backdrop-filter: blur(10px);
+            border-top: 1px solid var(--border);
+            display: flex; justify-content: space-around; padding: 14px 0; z-index: 30;
+        }
+        .nav-item {
+            color: var(--subtext); font-size: 11px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer;
+            transition: 0.2s;
+        }
+        .nav-item.active {
+            color: var(--accent);
+            text-shadow: var(--glow);
+            text-decoration: underline; text-underline-offset: 6px;
+        }
+        .status-box {
+            padding: 10px; margin-bottom: 12px; font-size: 11px; font-weight: 700;
+            border: 1px solid var(--accent); background: rgba(255,255,255,0.06);
+            color: var(--accent); display: none; letter-spacing: 0.5px;
+        }
+        .order-row-drag {
+            display: flex; justify-content: space-between; align-items: center;
+            border: 1px solid var(--border); padding: 8px 10px;
+            margin-bottom: 6px; background: var(--surface-2);
+        }
+
+        /* Полноэкранный Zoom Lightbox */
+        .lightbox-overlay {
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.96);
+            z-index: 100; display: none; flex-direction: column;
+            justify-content: space-between; user-select: none;
+            touch-action: none;
+        }
+        .lightbox-top {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 14px 16px; border-bottom: 1px solid var(--border);
+            background: rgba(5,5,5,0.8); z-index: 2;
+        }
+        .lightbox-counter { font-size: 12px; font-weight: 700; letter-spacing: 1.5px; color: var(--subtext); }
+        .lightbox-controls { display: flex; gap: 8px; }
+        .lb-btn {
+            background: var(--surface-2); color: var(--accent);
+            border: 1px solid var(--border); padding: 6px 12px;
+            font-size: 13px; font-weight: 800; cursor: pointer;
+        }
+        .lb-btn:active { border-color: var(--accent); box-shadow: var(--glow-sm); }
+        .lightbox-stage {
+            flex: 1; position: relative; display: flex;
+            align-items: center; justify-content: center; overflow: hidden;
+        }
+        .lightbox-stage img {
+            max-width: 100%; max-height: 100%; object-fit: contain;
+            transition: transform 0.15s ease-out; transform-origin: center center;
+        }
     </style>
 </head>
 <body>
 
 <header>
     <div class="logo-box" onclick="handleLogoTap()">
-        <span class="logo-icon">S</span> SNEAKERS
+        <span class="logo-icon">T</span> TÉNÉBRIS
     </div>
     <select id="currency" class="currency-select" onchange="refreshAllPrices()">
         <option value="UAH" selected>₴ UAH</option>
@@ -116,7 +328,7 @@
 <div id="page-detail" class="section">
     <div class="detail-wrap">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <div class="back-link" style="margin-bottom:0;" onclick="openPage('catalog')">← Назад в каталог</div>
+            <div class="back-link" onclick="openPage('catalog')">← Каталог</div>
             <div id="det-admin-btns" style="display:none; gap:8px;">
                 <button class="adm-mini-btn" onclick="startEditProduct(activeProduct.id)">✏️ Изменить</button>
                 <button class="adm-mini-btn del" onclick="deleteProduct(activeProduct.id)">🗑 Удалить</button>
@@ -124,8 +336,9 @@
         </div>
         <div class="slider-box">
             <div class="slide-arrow left" onclick="changeSlide(-1)">‹</div>
-            <img id="det-main-img" src="" alt="Sneaker">
+            <img id="det-main-img" src="" alt="Product" onclick="openLightbox()">
             <div class="slide-arrow right" onclick="changeSlide(1)">›</div>
+            <div class="zoom-hint">🔍 Нажми для увеличения</div>
         </div>
         <div id="det-dots" class="dots"></div>
         <div id="det-title" class="detail-title"></div>
@@ -135,32 +348,49 @@
             <span id="det-cur-price" class="detail-cur"></span>
         </div>
         <div id="det-sizes" class="sizes-grid"></div>
-        <div class="size-chart-link" onclick="openSizeModal()">Размерная сетка (см стопы)</div>
+        <div class="size-chart-link" onclick="openSizeModal()">📏 Размерная сетка (см стопы)</div>
         <div class="action-row">
             <button class="btn-black" onclick="buyNowCurrent()">Быстрая покупка</button>
-            <button class="btn-outline" onclick="addCurrentToCart()">Добавить в корзину</button>
+            <button class="btn-outline" onclick="addCurrentToCart()">В корзину</button>
         </div>
         <div id="det-variants-block" style="display:none;">
-            <div class="variants-title">Другие цвета: (<span id="det-color-name"></span>)</div>
+            <div class="variants-title">Цвет: <span id="det-color-name"></span></div>
             <div id="det-variants" class="variants-row"></div>
         </div>
         <div id="det-desc" class="desc-box"></div>
     </div>
 </div>
 
-<div id="size-modal" class="modal-overlay" onclick="closeSizeModal(event)">
+<!-- Полноэкранный просмотр и зум фото -->
+<div id="lightbox-modal" class="lightbox-overlay">
+    <div class="lightbox-top">
+        <div id="lb-counter" class="lightbox-counter">1 / 1</div>
+        <div class="lightbox-controls">
+            <button class="lb-btn" onclick="adjustZoom(-0.5)">−</button>
+            <button class="lb-btn" onclick="adjustZoom(0.5)">+</button>
+            <button class="lb-btn" onclick="closeLightbox()">✕</button>
+        </div>
+    </div>
+    <div class="lightbox-stage" id="lb-stage">
+        <div class="slide-arrow left" onclick="changeLightboxSlide(-1)">‹</div>
+        <img id="lb-img" src="" alt="Zoom">
+        <div class="slide-arrow right" onclick="changeLightboxSlide(1)">›</div>
+    </div>
+</div>
+
+<div id="size-modal" class="modal-overlay" onclick="closeSizeModal()">
     <div class="modal-card" onclick="event.stopPropagation()">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <strong style="font-size:15px; text-transform:uppercase;">📏 Размерная линейка</strong>
+            <strong style="font-size:13px; text-transform:uppercase; letter-spacing:1px;">📏 Размерная линейка</strong>
             <span style="cursor:pointer; font-size:18px; font-weight:bold;" onclick="closeSizeModal()">✕</span>
         </div>
         <div id="modal-size-content"></div>
-        <img id="modal-size-img" src="" style="width:100%; margin-top:10px; display:none; border:1px solid #ddd;">
+        <img id="modal-size-img" src="" style="width:100%; margin-top:10px; display:none; border:1px solid var(--border);">
     </div>
 </div>
 
 <div id="page-cart" class="section pad-section">
-    <h2 style="margin-bottom: 14px; font-size:18px; text-transform:uppercase;">Корзина</h2>
+    <h2 style="margin-bottom: 14px; font-size:16px; text-transform:uppercase; letter-spacing:2px;">Корзина</h2>
     <div id="cart-list"></div>
     <div id="cart-summary" style="margin-top: 18px; display: none;">
         <div class="form-group">
@@ -184,8 +414,8 @@
             <input type="text" id="ord-city" placeholder="Например: Киев">
         </div>
         <div class="form-group">
-            <label>Улица и номер отделения / почтомата *</label>
-            <input type="text" id="ord-branch" placeholder="Отделение №15 или ул. Крещатик 10">
+            <label>Отделение / Почтомат / Адрес *</label>
+            <input type="text" id="ord-branch" placeholder="Отделение №15">
         </div>
         <div class="form-group">
             <label>Способ оплаты</label>
@@ -195,19 +425,19 @@
                 <option value="USDT / CryptoBot (@send)">Криптовалюта (USDT / @send)</option>
             </select>
         </div>
-        <div id="total-price" style="font-size:18px; font-weight:800; margin: 16px 0;"></div>
+        <div id="total-price" style="font-size:17px; font-weight:900; margin: 16px 0; color:var(--accent); text-shadow:var(--glow-sm);"></div>
         <button class="btn-black" onclick="submitOrder()">Оформить заказ</button>
     </div>
 </div>
 
 <div id="page-admin" class="section pad-section">
-    <h2 style="margin-bottom: 10px; font-size:18px; text-transform:uppercase;">⚙️ Панель владельца</h2>
+    <h2 style="margin-bottom: 12px; font-size:16px; text-transform:uppercase; letter-spacing:2px;">⚙️ Панель TÉNÉBRIS</h2>
     
-    <details id="cloud-settings-box" style="border:1px solid var(--black); padding:10px; margin-bottom:16px; background:var(--surface);">
-        <summary style="font-size:12px; font-weight:800; cursor:pointer; text-transform:uppercase;">
-            ☁️ Настройка общей базы (GitHub и ImgBB)
+    <details id="cloud-settings-box" style="border:1px solid var(--border); padding:10px; margin-bottom:16px; background:var(--surface);">
+        <summary style="font-size:11px; font-weight:800; cursor:pointer; text-transform:uppercase; letter-spacing:1px;">
+            ☁️ Настройка облака (GitHub и ImgBB)
         </summary>
-        <div style="margin-top:10px;">
+        <div style="margin-top:12px;">
             <div class="form-group">
                 <label>GitHub Репозиторий</label>
                 <input type="text" id="cfg-repo" placeholder="Ricard9760/shop">
@@ -220,27 +450,27 @@
                 <label>ImgBB API Key</label>
                 <input type="password" id="cfg-imgbb-key" placeholder="api.imgbb.com ключ">
             </div>
-            <button class="btn-black" style="padding:9px;" onclick="saveCloudConfig()">💾 Сохранить ключи</button>
+            <button class="btn-black" style="padding:10px;" onclick="saveCloudConfig()">💾 Сохранить ключи</button>
         </div>
     </details>
 
     <div id="admin-status" class="status-box"></div>
     
-    <details style="border:1px solid var(--black); padding:10px; margin-bottom:16px; background:var(--surface);">
-        <summary style="font-size:12px; font-weight:800; cursor:pointer; text-transform:uppercase;">
-            📂 Управление категориями
+    <details style="border:1px solid var(--border); padding:10px; margin-bottom:16px; background:var(--surface);">
+        <summary style="font-size:11px; font-weight:800; cursor:pointer; text-transform:uppercase; letter-spacing:1px;">
+            📂 Управление категориями (Синхронизация для всех)
         </summary>
-        <div style="margin-top:10px;">
+        <div style="margin-top:12px;">
             <div style="display:flex; gap:6px; margin-bottom:10px;">
-                <input type="text" id="new-category-name" placeholder="Новая категория" style="padding:6px; font-size:13px; border:1px solid #000;">
-                <button class="btn-black" style="width:auto; padding:6px 12px; font-size:11px;" onclick="addNewCategory()">+ Добавить</button>
+                <input type="text" id="new-category-name" placeholder="Новая категория" style="padding:8px; font-size:12px; border:1px solid var(--border); background:var(--bg); color:var(--text); flex:1;">
+                <button class="btn-black" style="width:auto; padding:8px 14px; font-size:11px;" onclick="addNewCategory()">+ Добавить</button>
             </div>
             <div id="manage-categories-list"></div>
         </div>
     </details>
     
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-        <h3 id="form-mode-title" style="font-size:15px; text-transform:uppercase;">➕ Новый товар</h3>
+        <h3 id="form-mode-title" style="font-size:14px; text-transform:uppercase; letter-spacing:1px;">➕ Новый товар</h3>
         <button id="cancel-edit-btn" class="adm-mini-btn" style="display:none;" onclick="resetAdminForm()">✕ Отменить</button>
     </div>
     <input type="hidden" id="adm-edit-id" value="">
@@ -249,11 +479,11 @@
         <select id="adm-gender"></select>
     </div>
     <div class="form-group">
-        <label>Бренд (впиши любой)</label>
-        <input type="text" id="adm-brand" placeholder="Например: Asics, Nike, Adidas">
+        <label>Бренд</label>
+        <input type="text" id="adm-brand" placeholder="Например: Asics, Nike, Rick Owens">
     </div>
     <div class="form-group">
-        <label>Название модели и код</label>
+        <label>Название модели</label>
         <input type="text" id="adm-title" placeholder="Asics Gel NYC">
     </div>
     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
@@ -273,19 +503,36 @@
     </div>
     <label class="checkbox-row">
         <input type="checkbox" id="adm-has-discount" onchange="toggleDiscountBox()">
-        <span>🔥 Назначить скидку (перечеркнутая старая цена)</span>
+        <span>🔥 Назначить скидку (старая цена)</span>
     </label>
-    <div id="discount-settings" style="display:none; border:1px solid var(--border); padding:10px; margin-bottom:12px; background:#fafafa;">
+    <div id="discount-settings" style="display:none; border:1px solid var(--border); padding:10px; margin-bottom:12px; background:var(--surface-2);">
         <div class="form-group" style="margin-bottom:0;">
             <label>Старая цена до скидки</label>
             <input type="number" id="adm-old-price" placeholder="8810">
         </div>
     </div>
+
     <div class="form-group">
-        <label>Фотографии товара</label>
+        <label>Название основного цвета *</label>
+        <input type="text" id="adm-main-color" placeholder="Например: Obsidian Black / Graphite">
+    </div>
+    <div class="form-group">
+        <label>Фотографии основного цвета (можно несколько)</label>
         <input type="file" id="adm-photos" accept="image/*" multiple onchange="handleMultiPhotos(this)">
         <div id="adm-photo-preview" class="preview-strip"></div>
     </div>
+
+    <div style="border:1px solid var(--border); padding:12px; margin-bottom:14px; background:var(--surface);">
+        <label style="font-size:11px; font-weight:800; display:block; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.8px; color:var(--accent);">
+            🎨 Дополнительные цвета (несколько фото на каждый цвет)
+        </label>
+        <input type="text" id="var-color-name" placeholder="Название цвета (напр. White Silver)" style="margin-bottom:8px; width:100%; padding:9px; background:var(--bg); border:1px solid var(--border); color:var(--text);">
+        <input type="file" id="var-color-files" accept="image/*" multiple onchange="handleVariantDraftFiles(this)" style="margin-bottom:8px; width:100%; color:var(--subtext); font-size:12px;">
+        <div id="var-temp-preview" class="preview-strip" style="margin-bottom:8px;"></div>
+        <button type="button" class="btn-outline" style="padding:8px;" onclick="addVariantDraft()">+ Прикрепить этот цвет с фото</button>
+        <div id="var-draft-list" class="preview-strip" style="margin-top:10px;"></div>
+    </div>
+
     <div class="form-group">
         <label>Размеры и длина стопы в см</label>
         <textarea id="adm-sizes" rows="3">36=23см, 37=23.5см, 38=24см, 39=24.5см, 40=25см, 41=26см, 42=26.5см, 43=27.5см, 44=28см, 45=29см</textarea>
@@ -297,17 +544,10 @@
     </div>
     <div class="form-group">
         <label>Описание товара</label>
-        <textarea id="adm-desc" rows="3" placeholder="Описание..."></textarea>
+        <textarea id="adm-desc" rows="3" placeholder="Материалы, особенности модели..."></textarea>
     </div>
-    <div style="border:1px solid var(--border); padding:10px; margin-bottom:14px; background:var(--surface);">
-        <label style="font-size:12px; font-weight:700; display:block; margin-bottom:6px;">🎨 ДРУГИЕ ЦВЕТА / ВАРИАНТЫ</label>
-        <input type="text" id="var-color-name" placeholder="Название цвета" style="margin-bottom:6px;">
-        <input type="file" id="var-color-file" accept="image/*" style="margin-bottom:6px;">
-        <button type="button" class="btn-outline" style="padding:7px;" onclick="addVariantDraft()">+ Прикрепить цвет</button>
-        <div id="var-draft-list" class="preview-strip" style="margin-top:8px;"></div>
-    </div>
-    <button id="save-prod-btn" class="btn-black" onclick="saveNewProduct()">✅ Сохранить и опубликовать для всех</button>
-    <h3 style="margin: 24px 0 10px; font-size:15px; text-transform:uppercase; border-top:2px solid var(--black); padding-top:16px;">
+    <button id="save-prod-btn" class="btn-black" onclick="saveNewProduct()">✅ Сохранить и опубликовать</button>
+    <h3 style="margin: 24px 0 10px; font-size:14px; text-transform:uppercase; letter-spacing:1px; border-top:1px solid var(--border); padding-top:16px;">
         📦 Управление каталогом
     </h3>
     <div id="admin-products-list"></div>
@@ -384,13 +624,13 @@
     const rates = {
         USD: { rate: 1, sym: '$' },
         USDT: { rate: 1, sym: '₮' },
-        UAH: { rate: 41.5, sym: 'грн' },
+        UAH: { rate: 41.5, sym: '₴' },
         RUB: { rate: 96, sym: '₽' }
     };
 
     let products = [];
-    let customGenderOrder = JSON.parse(localStorage.getItem('bw_gender_order')) || ['ALL', 'Мужские', 'Женские', 'Унисекс'];
-    let customBrandOrder = JSON.parse(localStorage.getItem('bw_brand_order')) || [];
+    let customGenderOrder = ['ALL', 'Мужские', 'Женские', 'Унисекс'];
+    let customBrandOrder = [];
 
     let selectedGender = 'ALL';
     let selectedBrand = 'ALL';
@@ -399,13 +639,27 @@
     let activeSlideIdx = 0;
     let activeSize = null;
     let activeColor = "";
+    let activeGallery = [];
     let cart = [];
 
     let uploadedProductPhotos = [];
     let uploadedChartPhoto = "";
+    let tempVariantPhotos = [];
     let uploadedVariants = [];
 
-    // Чтение напрямую через GitHub API (БЕЗ КЭША, мгновенное обновление для всех аккаунтов!)
+    function applyCloudPayload(cloudData) {
+        if (Array.isArray(cloudData)) {
+            products = cloudData;
+        } else if (cloudData && typeof cloudData === 'object') {
+            if (Array.isArray(cloudData.products)) products = cloudData.products;
+            if (Array.isArray(cloudData.categories) && cloudData.categories.length > 0) {
+                customGenderOrder = cloudData.categories.includes('ALL')
+                    ? cloudData.categories
+                    : ['ALL', ...cloudData.categories];
+            }
+        }
+    }
+
     async function loadSharedCatalog() {
         const repo = detectGitHubRepo();
         let loadedFromCloud = false;
@@ -418,10 +672,8 @@
             });
             if (res && res.ok) {
                 const cloudData = await res.json();
-                if (Array.isArray(cloudData)) {
-                    products = cloudData; // Даже если массив пустой [], он не подгрузит старый товар!
-                    loadedFromCloud = true;
-                }
+                applyCloudPayload(cloudData);
+                loadedFromCloud = true;
             }
         } catch (e) {}
 
@@ -430,22 +682,23 @@
                 const rawRes = await fetch(`https://raw.githubusercontent.com/${repo}/main/products.json?t=${Date.now()}`, { cache: 'no-store' });
                 if (rawRes && rawRes.ok) {
                     const cloudData = await rawRes.json();
-                    if (Array.isArray(cloudData)) {
-                        products = cloudData;
-                        loadedFromCloud = true;
-                    }
+                    applyCloudPayload(cloudData);
+                    loadedFromCloud = true;
                 }
             } catch (e) {}
         }
 
         if (!loadedFromCloud) {
-            const local = localStorage.getItem('bw_sneaker_catalog_v20');
-            if (local !== null) {
-                products = JSON.parse(local);
-            }
+            const local = localStorage.getItem('tenebris_catalog_v1');
+            if (local) applyCloudPayload(JSON.parse(local));
         } else {
-            localStorage.setItem('bw_sneaker_catalog_v20', JSON.stringify(products));
+            localStorage.setItem('tenebris_catalog_v1', JSON.stringify({
+                categories: customGenderOrder,
+                products: products
+            }));
         }
+
+        if (!customGenderOrder.includes(selectedGender)) selectedGender = 'ALL';
 
         renderCatalog();
         if (isOwner) {
@@ -459,13 +712,13 @@
         const repo = document.getElementById('cfg-repo').value.trim() || detectGitHubRepo();
         const token = localStorage.getItem('cfg_gh_token');
         if (!token) {
-            alert('⚠️ Внимание: введите GitHub Token в настройках админки, чтобы изменения видели все пользователи!');
+            alert('⚠️ Введите GitHub Token в настройках админки, чтобы изменения сохранились у всех пользователей!');
             return false;
         }
 
         const statusEl = document.getElementById('admin-status');
         statusEl.style.display = 'block';
-        statusEl.innerText = '⏳ Синхронизация со всеми устройствами...';
+        statusEl.innerText = '⏳ Синхронизация с облаком TÉNÉBRIS...';
 
         const apiUrl = `https://api.github.com/repos/${repo}/contents/products.json`;
         let sha = null;
@@ -481,11 +734,18 @@
             }
         } catch (e) {}
 
-        const contentStr = JSON.stringify(products, null, 2);
+        const payloadData = {
+            categories: customGenderOrder,
+            products: products
+        };
+
+        localStorage.setItem('tenebris_catalog_v1', JSON.stringify(payloadData));
+
+        const contentStr = JSON.stringify(payloadData, null, 2);
         const contentBase64 = btoa(unescape(encodeURIComponent(contentStr)));
 
         const bodyObj = {
-            message: "Update shared sneaker catalog",
+            message: "Sync TÉNÉBRIS catalog & categories",
             content: contentBase64
         };
         if (sha) bodyObj.sha = sha;
@@ -501,12 +761,12 @@
         });
 
         if (putRes.ok) {
-            statusEl.innerText = '✅ Общая база обновлена! Изменения видны на всех аккаунтах.';
+            statusEl.innerText = '✅ Синхронизировано! Изменения доступны всем пользователям.';
             setTimeout(() => { statusEl.style.display = 'none'; }, 4000);
             return true;
         } else {
             const errJson = await putRes.json().catch(() => ({}));
-            statusEl.innerText = '⚠️ Ошибка сохранения на GitHub.';
+            statusEl.innerText = '⚠️ Ошибка синхронизации GitHub.';
             alert('⚠️ Ошибка GitHub: ' + (errJson.message || putRes.statusText));
             return false;
         }
@@ -543,34 +803,36 @@
     function renderCategoryManagerUI() {
         const wrap = document.getElementById('manage-categories-list');
         const cats = customGenderOrder.filter(c => c !== 'ALL');
-        wrap.innerHTML = cats.map((cat, idx) => `
-            <div class="order-row-drag" style="margin-bottom:6px;">
+        wrap.innerHTML = cats.map(cat => `
+            <div class="order-row-drag">
                 <span style="font-size:12px; font-weight:700;">${cat}</span>
                 <button class="adm-mini-btn del" onclick="removeCategory('${cat}')">🗑 Удалить</button>
             </div>
         `).join('');
     }
 
-    function addNewCategory() {
+    async function addNewCategory() {
         const input = document.getElementById('new-category-name');
         const name = input.value.trim();
         if (!name) return;
         if (customGenderOrder.includes(name)) { alert('Такая категория уже есть!'); return; }
         customGenderOrder.push(name);
-        localStorage.setItem('bw_gender_order', JSON.stringify(customGenderOrder));
         input.value = '';
         renderGenderTabs();
         renderCategoryOptions();
         renderCategoryManagerUI();
+        await syncCatalogToGitHub();
     }
 
     async function removeCategory(catName) {
-        if (customGenderOrder.filter(c => c !== 'ALL').length <= 1) { alert('Нельзя удалить последнюю категорию!'); return; }
-        if (!confirm(`Удалить категорию «${catName}»?`)) return;
+        if (customGenderOrder.filter(c => c !== 'ALL').length <= 1) {
+            alert('Нельзя удалить последнюю категорию!');
+            return;
+        }
+        if (!confirm(`Удалить категорию «${catName}» у всех пользователей?`)) return;
         const fallbackCat = customGenderOrder.find(c => c !== 'ALL' && c !== catName);
         products.forEach(p => { if (p.gender === catName) p.gender = fallbackCat; });
         customGenderOrder = customGenderOrder.filter(c => c !== catName);
-        localStorage.setItem('bw_gender_order', JSON.stringify(customGenderOrder));
         if (selectedGender === catName) selectedGender = 'ALL';
         renderGenderTabs();
         renderCategoryOptions();
@@ -610,7 +872,7 @@
         });
 
         if (filtered.length === 0) {
-            grid.innerHTML = '<p style="grid-column: 1 / -1; text-align:center; padding: 30px 10px; color:#777; font-size:13px;">В каталоге пока нет товаров.</p>';
+            grid.innerHTML = '<p style="grid-column: 1 / -1; text-align:center; padding: 40px 10px; color:var(--subtext); font-size:12px; letter-spacing:1px; text-transform:uppercase;">В каталоге пока нет товаров</p>';
             return;
         }
 
@@ -627,11 +889,13 @@
                 </div>
             ` : '';
 
+            const coverImg = (p.images && p.images[0]) || (p.variants && p.variants[0]?.images?.[0]) || '';
+
             grid.innerHTML += `
                 <div class="card" onclick="openProductDetail(${p.id}, true)">
                     ${badgeHtml}
                     <div>
-                        <img src="${p.images[0]}" alt="${p.title}">
+                        <img src="${coverImg}" alt="${p.title}">
                         <div class="card-brand">${p.brand} • ${p.gender}</div>
                         <div class="card-title">${p.title}</div>
                     </div>
@@ -647,23 +911,37 @@
     function renderAdminProductList() {
         const wrap = document.getElementById('admin-products-list');
         if (!wrap) return;
-        if (products.length === 0) { wrap.innerHTML = '<p style="font-size:12px; color:#777;">В каталоге пока нет товаров.</p>'; return; }
+        if (products.length === 0) { wrap.innerHTML = '<p style="font-size:12px; color:var(--subtext);">В каталоге пока нет товаров.</p>'; return; }
         wrap.innerHTML = products.map(p => `
             <div class="cart-item">
                 <div style="display:flex; align-items:center; gap:10px;">
-                    <img src="${p.images[0]}" style="width:44px; height:44px; object-fit:contain; border:1px solid #ddd;">
+                    <img src="${p.images[0]}" style="width:46px; height:46px; object-fit:contain; border:1px solid var(--border); background:#080808;">
                     <div>
-                        <div style="font-size:11px; color:#777;">${p.gender} • ${p.brand}</div>
+                        <div style="font-size:10px; color:var(--subtext); text-transform:uppercase;">${p.gender} • ${p.brand}</div>
                         <div style="font-weight:700; font-size:13px;">${p.title}</div>
-                        <div style="font-weight:800; font-size:12px;">${formatMoney(p.priceUSD)}</div>
+                        <div style="font-weight:800; font-size:12px; color:var(--accent);">${formatMoney(p.priceUSD)}</div>
                     </div>
                 </div>
                 <div style="display:flex; gap:6px;">
-                    <button class="adm-mini-btn" onclick="startEditProduct(${p.id})">✏️ Изменить</button>
+                    <button class="adm-mini-btn" onclick="startEditProduct(${p.id})">✏️</button>
                     <button class="adm-mini-btn del" onclick="deleteProduct(${p.id})">🗑</button>
                 </div>
             </div>
         `).join('');
+    }
+
+    function normalizeVariants(p) {
+        const rawVars = p.variants || [];
+        if (rawVars.length === 0) {
+            return [{
+                name: p.mainColor || "Black",
+                images: p.images && p.images.length ? p.images : []
+            }];
+        }
+        return rawVars.map(v => ({
+            name: v.name || "Black",
+            images: Array.isArray(v.images) && v.images.length ? v.images : (v.img ? [v.img] : p.images)
+        }));
     }
 
     function startEditProduct(id) {
@@ -674,7 +952,7 @@
         document.getElementById('cancel-edit-btn').style.display = 'inline-block';
         document.getElementById('save-prod-btn').innerText = '💾 Сохранить изменения';
         document.getElementById('adm-edit-id').value = p.id;
-        document.getElementById('adm-gender').value = p.gender || 'Мужские';
+        document.getElementById('adm-gender').value = p.gender || customGenderOrder[1] || 'Мужские';
         document.getElementById('adm-brand').value = p.brand || '';
         document.getElementById('adm-title').value = p.title || '';
         const cur = document.getElementById('adm-cur').value;
@@ -683,12 +961,17 @@
         document.getElementById('adm-has-discount').checked = !!hasDisc;
         toggleDiscountBox();
         if (hasDisc) document.getElementById('adm-old-price').value = Math.round(p.oldPriceUSD * rates[cur].rate);
-        uploadedProductPhotos = [...(p.images || [])];
+
+        const normVars = normalizeVariants(p);
+        document.getElementById('adm-main-color').value = p.mainColor || normVars[0].name || '';
+        uploadedProductPhotos = [...(normVars[0].images || p.images || [])];
         renderPhotoPreviews();
+
+        uploadedVariants = normVars.slice(1);
+        renderVariantPreviews();
+
         uploadedChartPhoto = p.sizeChartImg || "";
         renderChartPreview();
-        uploadedVariants = [...(p.variants || [])];
-        renderVariantPreviews();
         document.getElementById('adm-sizes').value = (p.sizes || []).map(s => `${s.size}=${s.cm}`).join(', ');
         document.getElementById('adm-desc').value = p.desc || '';
         window.scrollTo(0, 0);
@@ -697,19 +980,22 @@
     function resetAdminForm() {
         document.getElementById('form-mode-title').innerText = '➕ Новый товар';
         document.getElementById('cancel-edit-btn').style.display = 'none';
-        document.getElementById('save-prod-btn').innerText = '✅ Сохранить и опубликовать для всех';
+        document.getElementById('save-prod-btn').innerText = '✅ Сохранить и опубликовать';
         document.getElementById('adm-edit-id').value = '';
         document.getElementById('adm-brand').value = '';
         document.getElementById('adm-title').value = '';
         document.getElementById('adm-price').value = '';
+        document.getElementById('adm-main-color').value = '';
         document.getElementById('adm-has-discount').checked = false;
         toggleDiscountBox();
         document.getElementById('adm-desc').value = '';
         uploadedProductPhotos = [];
         uploadedChartPhoto = "";
+        tempVariantPhotos = [];
         uploadedVariants = [];
         renderPhotoPreviews();
         renderChartPreview();
+        renderTempVariantPreviews();
         renderVariantPreviews();
     }
 
@@ -720,7 +1006,6 @@
         if (!confirm(`Удалить товар «${p.title}» навсегда?`)) return;
 
         products = products.filter(x => x.id !== id);
-        localStorage.setItem('bw_sneaker_catalog_v20', JSON.stringify(products));
         renderCatalog();
         renderAdminProductList();
         if (activeProduct && activeProduct.id === id) openPage('catalog');
@@ -732,13 +1017,16 @@
         const p = products.find(x => x.id === id);
         if (!p) return;
         activeProduct = p;
+        const normVars = normalizeVariants(p);
+
         if (resetState) {
             activeSlideIdx = 0;
             activeSize = p.sizes && p.sizes.length ? p.sizes[0].size : "41";
-            activeColor = p.variants && p.variants.length ? p.variants[0].name : "Базовый";
+            activeColor = normVars[0].name;
+            activeGallery = normVars[0].images && normVars[0].images.length ? normVars[0].images : p.images;
         }
         document.getElementById('det-title').innerText = p.title;
-        document.getElementById('det-code').innerText = `Код товара: ${p.code || 'S-' + p.id} | Категория: ${p.gender}`;
+        document.getElementById('det-code').innerText = `КОД: ${p.code || 'T-' + p.id}  |  ${p.gender}`;
         const hasDiscount = p.oldPriceUSD && p.oldPriceUSD > p.priceUSD;
         const oldEl = document.getElementById('det-old-price');
         if (hasDiscount) { oldEl.innerText = formatMoney(p.oldPriceUSD); oldEl.style.display = 'inline'; }
@@ -752,14 +1040,16 @@
     }
 
     function updateSliderView() {
-        const imgs = activeProduct.images;
+        const imgs = activeGallery && activeGallery.length ? activeGallery : activeProduct.images;
         document.getElementById('det-main-img').src = imgs[activeSlideIdx] || imgs[0];
         const dotsWrap = document.getElementById('det-dots');
         dotsWrap.innerHTML = imgs.map((_, i) => `<span class="dot ${i === activeSlideIdx ? 'active' : ''}" onclick="setSlide(${i})"></span>`).join('');
     }
 
     function changeSlide(dir) {
-        const len = activeProduct.images.length;
+        const imgs = activeGallery && activeGallery.length ? activeGallery : activeProduct.images;
+        const len = imgs.length;
+        if (!len) return;
         activeSlideIdx = (activeSlideIdx + dir + len) % len;
         updateSliderView();
     }
@@ -776,25 +1066,130 @@
     function renderDetailVariants() {
         const block = document.getElementById('det-variants-block');
         const row = document.getElementById('det-variants');
-        const vars = activeProduct.variants || [];
+        const vars = normalizeVariants(activeProduct);
         if (vars.length === 0) { block.style.display = 'none'; return; }
         block.style.display = 'block';
         document.getElementById('det-color-name').innerText = activeColor;
-        row.innerHTML = vars.map(v => `<div class="var-thumb ${activeColor === v.name ? 'active' : ''}" onclick="chooseColorVariant('${v.name}', '${v.img}')"><img src="${v.img}" alt="${v.name}"></div>`).join('');
+        row.innerHTML = vars.map((v, idx) => {
+            const cover = v.images[0] || '';
+            const countBadge = v.images.length > 1 ? `<span class="var-count-badge">${v.images.length} фото</span>` : '';
+            return `
+                <div class="var-thumb ${activeColor === v.name ? 'active' : ''}" onclick="chooseColorVariant(${idx})">
+                    <img src="${cover}" alt="${v.name}">
+                    ${countBadge}
+                </div>
+            `;
+        }).join('');
     }
 
-    function chooseColorVariant(name, img) {
-        activeColor = name;
-        if (img) document.getElementById('det-main-img').src = img;
+    function chooseColorVariant(idx) {
+        const vars = normalizeVariants(activeProduct);
+        const chosen = vars[idx];
+        if (!chosen) return;
+        activeColor = chosen.name;
+        activeGallery = chosen.images && chosen.images.length ? chosen.images : activeProduct.images;
+        activeSlideIdx = 0;
+        updateSliderView();
         renderDetailVariants();
     }
+
+    /* Полноэкранный Zoom Lightbox */
+    let currentZoom = 1;
+    let panX = 0, panY = 0;
+    let startTouchX = 0, startTouchY = 0;
+    let isDraggingImg = false;
+    let initialPinchDist = null;
+    let lastTapTime = 0;
+
+    function openLightbox() {
+        if (!activeProduct) return;
+        currentZoom = 1; panX = 0; panY = 0;
+        updateLightboxImage();
+        document.getElementById('lightbox-modal').style.display = 'flex';
+    }
+
+    function closeLightbox() {
+        document.getElementById('lightbox-modal').style.display = 'none';
+    }
+
+    function updateLightboxImage() {
+        const imgs = activeGallery && activeGallery.length ? activeGallery : activeProduct.images;
+        const imgEl = document.getElementById('lb-img');
+        imgEl.src = imgs[activeSlideIdx] || imgs[0];
+        imgEl.style.transform = `translate(${panX}px, ${panY}px) scale(${currentZoom})`;
+        document.getElementById('lb-counter').innerText = `${activeSlideIdx + 1} / ${imgs.length}`;
+    }
+
+    function changeLightboxSlide(dir) {
+        currentZoom = 1; panX = 0; panY = 0;
+        changeSlide(dir);
+        updateLightboxImage();
+    }
+
+    function adjustZoom(delta) {
+        currentZoom = Math.min(4, Math.max(1, currentZoom + delta));
+        if (currentZoom === 1) { panX = 0; panY = 0; }
+        const imgEl = document.getElementById('lb-img');
+        imgEl.style.transform = `translate(${panX}px, ${panY}px) scale(${currentZoom})`;
+    }
+
+    const lbStage = document.getElementById('lb-stage');
+    lbStage.addEventListener('touchstart', (e) => {
+        const now = Date.now();
+        if (e.touches.length === 1 && now - lastTapTime < 280) {
+            currentZoom = currentZoom > 1 ? 1 : 2.4;
+            panX = 0; panY = 0;
+            updateLightboxImage();
+            lastTapTime = 0;
+            return;
+        }
+        if (e.touches.length === 1) {
+            lastTapTime = now;
+            if (currentZoom > 1) {
+                isDraggingImg = true;
+                startTouchX = e.touches[0].clientX - panX;
+                startTouchY = e.touches[0].clientY - panY;
+            }
+        } else if (e.touches.length === 2) {
+            isDraggingImg = false;
+            initialPinchDist = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+        }
+    }, { passive: true });
+
+    lbStage.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 2 && initialPinchDist) {
+            const dist = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+            const factor = dist / initialPinchDist;
+            currentZoom = Math.min(4, Math.max(1, currentZoom * factor));
+            initialPinchDist = dist;
+            if (currentZoom === 1) { panX = 0; panY = 0; }
+            const imgEl = document.getElementById('lb-img');
+            imgEl.style.transform = `translate(${panX}px, ${panY}px) scale(${currentZoom})`;
+        } else if (e.touches.length === 1 && isDraggingImg && currentZoom > 1) {
+            panX = e.touches[0].clientX - startTouchX;
+            panY = e.touches[0].clientY - startTouchY;
+            const imgEl = document.getElementById('lb-img');
+            imgEl.style.transform = `translate(${panX}px, ${panY}px) scale(${currentZoom})`;
+        }
+    }, { passive: true });
+
+    lbStage.addEventListener('touchend', () => {
+        isDraggingImg = false;
+        initialPinchDist = null;
+    });
 
     function openSizeModal() {
         if (!activeProduct) return;
         const rows = (activeProduct.sizes || []).map(s => `<tr><td><b>${s.size}</b></td><td>${s.cm || '-'}</td></tr>`).join('');
         document.getElementById('modal-size-content').innerHTML = `
-            <p style="font-size:12px; color:#555; margin-bottom:8px;">Модель: <b>${activeProduct.title}</b></p>
-            <table class="size-table"><thead><tr><th>Размер обуви</th><th>Длина стопы (см)</th></tr></thead><tbody>${rows}</tbody></table>
+            <p style="font-size:12px; color:var(--subtext); margin-bottom:8px;">Модель: <b style="color:var(--text);">${activeProduct.title}</b></p>
+            <table class="size-table"><thead><tr><th>Размер</th><th>Стопа (см)</th></tr></thead><tbody>${rows}</tbody></table>
         `;
         const chartImg = document.getElementById('modal-size-img');
         if (activeProduct.sizeChartImg) { chartImg.src = activeProduct.sizeChartImg; chartImg.style.display = 'block'; }
@@ -810,7 +1205,7 @@
         cart.push({ id: activeProduct.id, title: activeProduct.title, brand: activeProduct.brand, priceUSD: activeProduct.priceUSD, size: sizeObj.size, cm: sizeObj.cm, color: activeColor });
         document.getElementById('cart-count').innerText = cart.length;
         if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-        alert(`Добавлено в корзину: ${activeProduct.title} (Размер ${sizeObj.size})`);
+        alert(`Добавлено в корзину: ${activeProduct.title} (${activeColor}, р. ${sizeObj.size})`);
     }
 
     function buyNowCurrent() { addCurrentToCart(); openPage('cart'); }
@@ -819,7 +1214,7 @@
         const list = document.getElementById('cart-list');
         const sumBlock = document.getElementById('cart-summary');
         list.innerHTML = '';
-        if (cart.length === 0) { list.innerHTML = '<p style="color:var(--subtext);">Ваша корзина пуста.</p>'; sumBlock.style.display = 'none'; return; }
+        if (cart.length === 0) { list.innerHTML = '<p style="color:var(--subtext); font-size:13px;">Ваша корзина пуста.</p>'; sumBlock.style.display = 'none'; return; }
         sumBlock.style.display = 'block';
         let totalUSD = 0;
         cart.forEach((item, i) => {
@@ -828,10 +1223,10 @@
                 <div class="cart-item">
                     <div>
                         <div style="font-weight:700; font-size:13px;">${item.title}</div>
-                        <div style="font-size:12px; color:var(--subtext);">Размер: <b>${item.size}</b> (${item.cm}) | Цвет: <b>${item.color}</b></div>
-                        <div style="font-weight:800; font-size:13px; margin-top:3px;">${formatMoney(item.priceUSD)}</div>
+                        <div style="font-size:11px; color:var(--subtext); margin-top:2px;">Размер: <b style="color:var(--text);">${item.size}</b> (${item.cm}) | Цвет: <b style="color:var(--text);">${item.color}</b></div>
+                        <div style="font-weight:800; font-size:13px; margin-top:4px; color:var(--accent);">${formatMoney(item.priceUSD)}</div>
                     </div>
-                    <span style="cursor:pointer; font-weight:bold; padding:6px;" onclick="removeCartItem(${i})">✕</span>
+                    <span style="cursor:pointer; font-weight:bold; padding:6px; color:var(--subtext);" onclick="removeCartItem(${i})">✕</span>
                 </div>
             `;
         });
@@ -851,7 +1246,7 @@
         window.scrollTo(0, 0);
     }
 
-    function compressImageFile(file, maxWidth = 700, quality = 0.75) {
+    function compressImageFile(file, maxWidth = 800, quality = 0.78) {
         return new Promise((resolve) => {
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -870,8 +1265,8 @@
         });
     }
 
-    async function uploadImageSmart(file, maxWidth = 700) {
-        const dataUrl = await compressImageFile(file, maxWidth, 0.75);
+    async function uploadImageSmart(file, maxWidth = 800) {
+        const dataUrl = await compressImageFile(file, maxWidth, 0.78);
         const imgbbKey = localStorage.getItem('cfg_imgbb_key');
         if (!imgbbKey) return dataUrl;
         try {
@@ -896,9 +1291,9 @@
 
     async function handleMultiPhotos(input) {
         const statusEl = document.getElementById('admin-status');
-        statusEl.style.display = 'block'; statusEl.innerText = '⏳ Сжатие и загрузка фото...';
+        statusEl.style.display = 'block'; statusEl.innerText = '⏳ Загрузка фото основного цвета...';
         for (const file of input.files) {
-            const url = await uploadImageSmart(file, 700);
+            const url = await uploadImageSmart(file, 800);
             uploadedProductPhotos.push(url);
             renderPhotoPreviews();
         }
@@ -913,27 +1308,54 @@
 
     async function handleChartPhoto(input) {
         if (input.files[0]) {
-            uploadedChartPhoto = await uploadImageSmart(input.files[0], 700);
+            uploadedChartPhoto = await uploadImageSmart(input.files[0], 800);
             renderChartPreview();
         }
     }
 
-    function renderVariantPreviews() {
-        document.getElementById('var-draft-list').innerHTML = uploadedVariants.map((v, idx) => `
-            <div class="preview-item" style="height:auto; text-align:center; font-size:9px;">
-                <img src="${v.img}" style="height:44px;"><div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${v.name}</div>
-                <div class="preview-del" onclick="uploadedVariants.splice(${idx},1); renderVariantPreviews();">✕</div>
-            </div>
+    /* Мульти-фото для каждого дополнительного цвета */
+    function renderTempVariantPreviews() {
+        const wrap = document.getElementById('var-temp-preview');
+        wrap.innerHTML = tempVariantPhotos.map((url, idx) => `
+            <div class="preview-item"><img src="${url}"><div class="preview-del" onclick="tempVariantPhotos.splice(${idx},1); renderTempVariantPreviews();">✕</div></div>
         `).join('');
     }
 
-    async function addVariantDraft() {
+    async function handleVariantDraftFiles(input) {
+        const statusEl = document.getElementById('admin-status');
+        statusEl.style.display = 'block'; statusEl.innerText = '⏳ Загрузка фото для цвета...';
+        for (const file of input.files) {
+            const url = await uploadImageSmart(file, 800);
+            tempVariantPhotos.push(url);
+            renderTempVariantPreviews();
+        }
+        statusEl.style.display = 'none';
+        input.value = '';
+    }
+
+    function renderVariantPreviews() {
+        document.getElementById('var-draft-list').innerHTML = uploadedVariants.map((v, idx) => {
+            const imgs = v.images || (v.img ? [v.img] : []);
+            return `
+                <div class="preview-item" style="width:74px; height:auto; text-align:center; font-size:9px; padding:3px;">
+                    <img src="${imgs[0] || ''}" style="height:48px; object-fit:contain;">
+                    <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:2px; color:var(--text);">${v.name} (${imgs.length})</div>
+                    <div class="preview-del" onclick="uploadedVariants.splice(${idx},1); renderVariantPreviews();">✕</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function addVariantDraft() {
         const name = document.getElementById('var-color-name').value.trim();
-        const fileInput = document.getElementById('var-color-file');
-        if (!name || !fileInput.files[0]) { alert('Укажите название цвета и фото!'); return; }
-        const url = await uploadImageSmart(fileInput.files[0], 500);
-        uploadedVariants.push({ name, img: url });
-        document.getElementById('var-color-name').value = ''; fileInput.value = '';
+        if (!name || tempVariantPhotos.length === 0) {
+            alert('Укажите название цвета и выберите хотя бы 1 фото!');
+            return;
+        }
+        uploadedVariants.push({ name, images: [...tempVariantPhotos] });
+        document.getElementById('var-color-name').value = '';
+        tempVariantPhotos = [];
+        renderTempVariantPreviews();
         renderVariantPreviews();
     }
 
@@ -941,8 +1363,9 @@
         if (!isOwner) return;
         const editId = document.getElementById('adm-edit-id').value;
         const gender = document.getElementById('adm-gender').value;
-        const brand = document.getElementById('adm-brand').value.trim() || 'Sneakers';
+        const brand = document.getElementById('adm-brand').value.trim() || 'TÉNÉBRIS';
         const title = document.getElementById('adm-title').value.trim();
+        const mainColor = document.getElementById('adm-main-color').value.trim() || 'Black';
         const rawPrice = Number(document.getElementById('adm-price').value);
         const hasDiscount = document.getElementById('adm-has-discount').checked;
         const rawOldPrice = hasDiscount ? Number(document.getElementById('adm-old-price').value) : 0;
@@ -950,7 +1373,7 @@
         const rawSizes = document.getElementById('adm-sizes').value.trim();
         const desc = document.getElementById('adm-desc').value.trim();
 
-        if (!title || !rawPrice) { alert('Заполните название и цену!'); return; }
+        if (!title || !rawPrice) { alert('Заполните название модели и цену!'); return; }
 
         const priceUSD = +(rawPrice / rates[inputCur].rate).toFixed(2);
         const oldPriceUSD = (hasDiscount && rawOldPrice > 0) ? +(rawOldPrice / rates[inputCur].rate).toFixed(2) : 0;
@@ -962,6 +1385,11 @@
 
         const images = uploadedProductPhotos.length > 0 ? uploadedProductPhotos : ['https://images.unsplash.com/photo-1552346154-21d32810aba3?w=600'];
 
+        const fullVariants = [
+            { name: mainColor, images: images },
+            ...uploadedVariants
+        ];
+
         const btn = document.getElementById('save-prod-btn');
         btn.disabled = true; btn.innerText = '⏳ Публикация...';
 
@@ -969,34 +1397,33 @@
             const idx = products.findIndex(x => String(x.id) === String(editId));
             if (idx !== -1) {
                 products[idx] = {
-                    ...products[idx], gender, brand, title, priceUSD, oldPriceUSD, images,
+                    ...products[idx], gender, brand, title, mainColor, priceUSD, oldPriceUSD, images,
                     sizes: parsedSizes.length ? parsedSizes : [{ size: "41", cm: "26 см" }],
                     sizeChartImg: uploadedChartPhoto,
-                    variants: uploadedVariants.length ? uploadedVariants : [{ name: "Основной", img: images[0] }],
+                    variants: fullVariants,
                     desc
                 };
             }
         } else {
             const newProd = {
                 id: Date.now(),
-                code: 'S-' + Math.floor(100000 + Math.random() * 900000),
-                gender, brand, title, priceUSD, oldPriceUSD, images,
+                code: 'T-' + Math.floor(100000 + Math.random() * 900000),
+                gender, brand, title, mainColor, priceUSD, oldPriceUSD, images,
                 sizes: parsedSizes.length ? parsedSizes : [{ size: "41", cm: "26 см" }],
                 sizeChartImg: uploadedChartPhoto,
-                variants: uploadedVariants.length ? uploadedVariants : [{ name: "Основной", img: images[0] }],
+                variants: fullVariants,
                 desc
             };
             products.unshift(newProd);
         }
 
-        localStorage.setItem('bw_sneaker_catalog_v20', JSON.stringify(products));
         renderCatalog();
         renderAdminProductList();
 
         const success = await syncCatalogToGitHub();
         btn.disabled = false;
         resetAdminForm();
-        if (success) alert('✅ Опубликовано! Товар сразу доступен всем аккаунтам.');
+        if (success) alert('✅ Опубликовано в TÉNÉBRIS!');
     }
 
     function submitOrder() {
