@@ -6,339 +6,488 @@
     <title>TÉNÉBRIS</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root {
-            --bg: #050505;
-            --surface: #0d0d0d;
-            --surface-2: #151515;
-            --text: #f5f5f5;
-            --subtext: #7a7a7a;
-            --border: #262626;
-            --accent: #ffffff;
-            --glow: 0 0 14px rgba(255, 255, 255, 0.38);
-            --glow-sm: 0 0 8px rgba(255, 255, 255, 0.25);
-            --danger: #ff3b30;
+        /* СВЕТЛАЯ ТЕМА (КАК НА ПРИМЕРЕ SNEAKERS.COM.UA - БЕЗ РАМОК) */
+        :root, body[data-theme="light"] {
+            --bg: #ffffff;
+            --surface: #f7f7f7;
+            --surface-2: #efefef;
+            --text: #111111;
+            --subtext: #888888;
+            --border: #e6e6e6;
+            --accent: #000000;
+            --accent-text: #ffffff;
+            --card-img-bg: #ffffff;
+            --danger: #d93025;
+            --grid-line: transparent;
+            --glow: none;
         }
+
+        /* ТЁМНАЯ ТЕМА TÉNÉBRIS */
+        body[data-theme="dark"] {
+            --bg: #050505;
+            --surface: #0e0e0e;
+            --surface-2: #171717;
+            --text: #f5f5f5;
+            --subtext: #808080;
+            --border: #242424;
+            --accent: #ffffff;
+            --accent-text: #000000;
+            --card-img-bg: transparent;
+            --danger: #ff453a;
+            --grid-line: rgba(255, 255, 255, 0.02);
+            --glow: 0 0 12px rgba(255, 255, 255, 0.25);
+        }
+
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif; }
         body {
             background-color: var(--bg);
             background-image: 
-                linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+                linear-gradient(var(--grid-line) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
             background-size: 36px 36px;
             color: var(--text);
-            padding-bottom: 90px;
+            padding-bottom: 85px;
             -webkit-tap-highlight-color: transparent;
             min-height: 100vh;
+            transition: background-color 0.2s, color 0.2s;
         }
+
+        /* ШАПКА */
         header {
-            position: sticky; top: 0; z-index: 20;
-            background: rgba(5, 5, 5, 0.88);
-            backdrop-filter: blur(12px);
-            padding: 14px 16px;
+            position: sticky; top: 0; z-index: 25;
+            background: var(--bg);
+            padding: 12px 16px;
             border-bottom: 1px solid var(--border);
-            display: flex; justify-content: space-between; align-items: center;
+            display: flex; justify-content: space-between; align-items: center; gap: 10px;
         }
         .logo-box {
-            display: flex; align-items: center; gap: 10px;
-            font-weight: 900; font-size: 17px; letter-spacing: 3.5px;
-            cursor: pointer; user-select: none; color: var(--accent);
-            text-shadow: 0 0 10px rgba(255,255,255,0.45);
+            display: flex; align-items: center; gap: 8px;
+            font-weight: 900; font-size: 15px; letter-spacing: 2.5px;
+            cursor: pointer; user-select: none; color: var(--text);
+            white-space: nowrap;
         }
         .logo-icon {
-            border: 1.5px solid var(--accent);
-            padding: 2px 6px; font-size: 13px; font-weight: 900;
-            box-shadow: var(--glow-sm);
-            background: rgba(255,255,255,0.04);
+            border: 1.8px solid var(--text);
+            padding: 1px 5px; font-size: 12px; font-weight: 900;
+        }
+        .header-right { display: flex; align-items: center; gap: 8px; }
+        .theme-btn {
+            background: var(--surface); color: var(--text);
+            border: 1px solid var(--border); width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 14px; border-radius: 4px;
         }
         .currency-select {
             background: var(--surface); color: var(--text);
-            border: 1px solid var(--border); padding: 6px 10px;
+            border: 1px solid var(--border); padding: 6px 8px;
             font-weight: 700; font-size: 11px; outline: none;
-            text-transform: uppercase; letter-spacing: 1px;
+            text-transform: uppercase; border-radius: 4px;
         }
-        .currency-select:focus { border-color: var(--accent); box-shadow: var(--glow-sm); }
-        .search-wrap { padding: 14px 16px 6px; }
+
+        /* ПОИСК И ПАНЕЛЬ ФИЛЬТРА */
+        .top-controls {
+            display: flex; gap: 8px; padding: 12px 16px 6px; align-items: center;
+        }
         .search-input {
-            width: 100%; background: var(--surface);
-            border: 1px solid var(--border); padding: 11px 16px;
-            font-size: 13px; outline: none; color: var(--text);
-            letter-spacing: 0.4px; transition: 0.2s;
+            flex: 1; background: var(--surface);
+            border: 1px solid transparent; border-radius: 20px;
+            padding: 9px 14px; font-size: 13px; outline: none; color: var(--text);
         }
-        .search-input:focus { border-color: var(--accent); box-shadow: var(--glow-sm); }
+        .search-input:focus { border-color: var(--text); }
         .search-input::placeholder { color: var(--subtext); }
-        .tabs { display: flex; gap: 8px; padding: 8px 16px; overflow-x: auto; scrollbar-width: none; }
+        .filter-trigger-btn {
+            background: var(--surface); color: var(--text);
+            border: 1px solid var(--border); border-radius: 20px;
+            padding: 9px 14px; font-size: 12px; font-weight: 700;
+            cursor: pointer; display: flex; align-items: center; gap: 6px;
+            white-space: nowrap;
+        }
+        .filter-badge-dot {
+            width: 7px; height: 7px; border-radius: 50%;
+            background: var(--text); display: none;
+        }
+
+        /* БЫСТРЫЕ ТАБЫ КАТЕГОРИЙ */
+        .tabs { display: flex; gap: 8px; padding: 6px 16px; overflow-x: auto; scrollbar-width: none; }
         .tabs::-webkit-scrollbar { display: none; }
         .tab-btn {
-            background: var(--surface); color: var(--subtext);
-            border: 1px solid var(--border); padding: 8px 14px;
-            font-size: 11px; font-weight: 700; cursor: pointer;
-            white-space: nowrap; text-transform: uppercase;
-            letter-spacing: 1.2px; transition: 0.2s;
+            background: transparent; color: var(--subtext);
+            border: none; border-bottom: 2px solid transparent;
+            padding: 6px 4px; margin-right: 10px;
+            font-size: 12px; font-weight: 700; cursor: pointer;
+            white-space: nowrap; text-transform: uppercase; letter-spacing: 0.8px;
         }
         .tab-btn.active {
-            background: var(--accent); color: #000;
-            border-color: var(--accent); box-shadow: var(--glow);
+            color: var(--text);
+            border-bottom-color: var(--text);
         }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 10px 16px; }
+
+        /* СЕТКА КАТАЛОГА (БЕЗ РАМОК, КАК НА РЕФЕРЕНСЕ) */
+        .grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            column-gap: 14px; row-gap: 28px; padding: 12px 16px;
+        }
         .card {
-            position: relative; border: 1px solid var(--border);
+            position: relative; border: none;
             display: flex; flex-direction: column; justify-content: space-between;
-            padding: 10px; cursor: pointer; background: rgba(13, 13, 13, 0.9);
-            transition: border-color 0.2s, box-shadow 0.2s;
+            padding: 0; cursor: pointer; background: transparent;
         }
-        .card:active { border-color: var(--accent); box-shadow: var(--glow-sm); }
         .sale-badge {
-            position: absolute; top: 8px; left: 8px;
-            background: var(--accent); color: #000;
-            font-size: 10px; font-weight: 900; padding: 3px 6px;
+            position: absolute; top: 6px; left: 0;
+            background: var(--accent); color: var(--accent-text);
+            font-size: 10px; font-weight: 800; padding: 3px 6px;
             text-transform: uppercase; z-index: 2;
-            box-shadow: var(--glow-sm); letter-spacing: 0.5px;
         }
-        .card img {
-            width: 100%; height: 145px; object-fit: contain;
-            background: #080808; margin-bottom: 10px;
-            border: 1px solid #161616;
+        .card-img-wrap {
+            width: 100%; height: 155px; display: flex;
+            align-items: center; justify-content: center;
+            background: var(--card-img-bg); margin-bottom: 8px;
+            overflow: hidden;
         }
-        .card-brand { font-size: 9px; color: var(--subtext); text-transform: uppercase; letter-spacing: 1px; }
-        .card-title { font-size: 13px; font-weight: 700; margin: 4px 0 8px; line-height: 1.25; color: var(--text); }
-        .price-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .card-img-wrap img {
+            width: 100%; height: 100%; object-fit: contain;
+            transition: transform 0.25s ease;
+        }
+        .add-pill-btn {
+            display: inline-flex; align-items: center; gap: 5px;
+            background: var(--surface); color: var(--subtext);
+            border: 1px solid var(--border); border-radius: 14px;
+            padding: 4px 10px; font-size: 11px; font-weight: 600;
+            margin-bottom: 8px; width: fit-content; cursor: pointer;
+        }
+        .add-pill-btn:active { border-color: var(--text); color: var(--text); }
+        .card-title {
+            font-size: 12px; font-weight: 800; margin-bottom: 5px;
+            line-height: 1.3; color: var(--text); text-transform: uppercase;
+            letter-spacing: 0.3px; display: -webkit-box;
+            -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+            min-height: 31px;
+        }
+        .card-code {
+            font-size: 10px; color: var(--subtext); margin-bottom: 6px;
+            display: flex; align-items: center; gap: 4px;
+        }
+        .price-row { display: flex; align-items: baseline; gap: 7px; flex-wrap: wrap; margin-bottom: 10px; }
         .old-price { font-size: 11px; color: var(--subtext); text-decoration: line-through; }
-        .cur-price { font-size: 14px; font-weight: 800; color: var(--accent); text-shadow: 0 0 8px rgba(255,255,255,0.25); }
-        .admin-card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); }
-        .adm-mini-btn {
-            font-size: 10px; font-weight: 700; padding: 6px;
-            border: 1px solid var(--border); background: var(--surface-2);
-            color: var(--text); cursor: pointer; text-align: center;
-            text-transform: uppercase; letter-spacing: 0.5px;
+        .cur-price { font-size: 13px; font-weight: 800; color: var(--text); }
+        .card-buy-btn {
+            background: var(--accent); color: var(--accent-text);
+            border: 1px solid var(--accent); padding: 10px 6px;
+            font-size: 10px; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 0.8px; width: 100%; text-align: center; cursor: pointer;
         }
-        .adm-mini-btn:active { border-color: var(--accent); }
-        .adm-mini-btn.del { border-color: rgba(255, 59, 48, 0.5); color: var(--danger); }
+
+        /* КНОПКИ ВЛАДЕЛЬЦА НА КАРТОЧКЕ (ПЕРЕМЕЩЕНИЕ + РЕДАКТИРОВАНИЕ) */
+        .admin-card-actions {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 4px; margin-top: 6px; padding-top: 6px;
+            border-top: 1px dashed var(--border);
+        }
+        .adm-mini-btn {
+            font-size: 10px; font-weight: 700; padding: 5px 2px;
+            border: 1px solid var(--border); background: var(--surface);
+            color: var(--text); cursor: pointer; text-align: center;
+        }
+        .adm-mini-btn.del { color: var(--danger); border-color: rgba(217, 48, 37, 0.4); }
+
+        /* СТРАНИЦА ТОВАРА */
         .section { display: none; }
         .section.active { display: block; }
-        .detail-wrap { padding: 14px 16px; }
+        .detail-wrap { padding: 12px 16px; }
         .back-link {
             display: inline-flex; align-items: center; gap: 6px;
-            font-size: 11px; font-weight: 700; cursor: pointer;
-            text-transform: uppercase; letter-spacing: 1.2px; color: var(--subtext);
+            font-size: 12px; font-weight: 700; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 0.8px; color: var(--subtext);
         }
-        .back-link:hover { color: var(--accent); }
         .slider-box {
             position: relative; width: 100%; height: 290px;
-            background: #080808; display: flex; align-items: center; justify-content: center;
-            overflow: hidden; border: 1px solid var(--border);
+            background: var(--card-img-bg); display: flex; align-items: center; justify-content: center;
+            overflow: hidden; margin-bottom: 6px;
         }
         .slider-box img { width: 100%; height: 100%; object-fit: contain; cursor: zoom-in; }
         .zoom-hint {
             position: absolute; bottom: 8px; right: 8px;
-            background: rgba(0, 0, 0, 0.75); border: 1px solid var(--border);
-            color: var(--text); font-size: 10px; padding: 4px 8px;
-            pointer-events: none; letter-spacing: 0.5px; text-transform: uppercase;
+            background: var(--surface); border: 1px solid var(--border);
+            color: var(--subtext); font-size: 10px; padding: 3px 8px;
+            pointer-events: none; border-radius: 12px;
         }
         .slide-arrow {
             position: absolute; top: 50%; transform: translateY(-50%);
-            background: rgba(10, 10, 10, 0.85); border: 1px solid var(--border);
-            color: var(--accent); width: 34px; height: 34px;
+            background: var(--surface); border: 1px solid var(--border);
+            color: var(--text); width: 32px; height: 32px;
             display: flex; align-items: center; justify-content: center;
             font-weight: bold; cursor: pointer; user-select: none; z-index: 5;
+            border-radius: 50%;
         }
-        .slide-arrow:active { border-color: var(--accent); box-shadow: var(--glow-sm); }
-        .slide-arrow.left { left: 8px; } .slide-arrow.right { right: 8px; }
-        .dots { display: flex; justify-content: center; gap: 6px; margin: 12px 0 16px; }
-        .dot { width: 7px; height: 7px; border: 1px solid var(--subtext); background: transparent; cursor: pointer; transition: 0.2s; }
-        .dot.active { background: var(--accent); border-color: var(--accent); box-shadow: var(--glow-sm); }
-        .detail-title { font-size: 18px; font-weight: 800; line-height: 1.3; margin-bottom: 6px; letter-spacing: 0.3px; }
-        .detail-code { font-size: 11px; color: var(--subtext); margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.8px; }
+        .slide-arrow.left { left: 6px; } .slide-arrow.right { right: 6px; }
+        .dots { display: flex; justify-content: center; gap: 6px; margin: 8px 0 16px; }
+        .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); cursor: pointer; }
+        .dot.active { background: var(--text); transform: scale(1.25); }
+        .detail-title { font-size: 17px; font-weight: 800; line-height: 1.3; margin-bottom: 6px; text-transform: uppercase; }
+        .detail-code { font-size: 11px; color: var(--subtext); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
         .detail-prices { display: flex; align-items: baseline; gap: 12px; margin-bottom: 16px; }
         .detail-old { font-size: 15px; color: var(--subtext); text-decoration: line-through; }
-        .detail-cur { font-size: 22px; font-weight: 900; color: var(--accent); text-shadow: var(--glow-sm); }
+        .detail-cur { font-size: 21px; font-weight: 900; color: var(--text); }
         .sizes-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 12px; }
         .size-box {
-            border: 1px solid var(--border); padding: 12px 0;
+            border: 1px solid var(--border); padding: 11px 0;
             text-align: center; font-size: 13px; font-weight: 600;
-            cursor: pointer; background: var(--surface); color: var(--subtext);
-            transition: 0.2s;
+            cursor: pointer; background: var(--bg); color: var(--text);
         }
         .size-box.selected {
-            border: 1.5px solid var(--accent); color: #000;
-            background: var(--accent); font-weight: 900;
-            box-shadow: var(--glow);
+            border: 2px solid var(--accent); color: var(--accent-text);
+            background: var(--accent); font-weight: 800;
         }
         .size-chart-link {
             display: inline-block; font-size: 12px; color: var(--subtext);
             text-decoration: underline; margin-bottom: 18px; cursor: pointer;
-            letter-spacing: 0.4px;
         }
         .action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 22px; }
         .btn-black {
-            background: var(--accent); color: #000;
+            background: var(--accent); color: var(--accent-text);
             border: 1px solid var(--accent); padding: 13px 8px;
             font-size: 11px; font-weight: 800; text-transform: uppercase;
-            letter-spacing: 1.2px; cursor: pointer; text-align: center; width: 100%;
-            box-shadow: var(--glow); transition: 0.2s;
+            letter-spacing: 1px; cursor: pointer; text-align: center; width: 100%;
         }
-        .btn-black:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+        .btn-black:disabled { opacity: 0.45; cursor: not-allowed; }
         .btn-outline {
-            background: var(--surface); color: var(--accent);
-            border: 1px solid var(--accent); padding: 13px 8px;
+            background: var(--bg); color: var(--text);
+            border: 1px solid var(--text); padding: 13px 8px;
             font-size: 11px; font-weight: 800; text-transform: uppercase;
-            letter-spacing: 1.2px; cursor: pointer; text-align: center; width: 100%;
+            letter-spacing: 1px; cursor: pointer; text-align: center; width: 100%;
         }
-        .btn-outline:active { background: var(--accent); color: #000; }
-        .variants-title { font-size: 12px; font-weight: 700; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--subtext); }
-        .variants-title span { color: var(--accent); }
+        .variants-title { font-size: 12px; font-weight: 700; margin-bottom: 10px; text-transform: uppercase; color: var(--subtext); }
+        .variants-title span { color: var(--text); }
         .variants-row { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 18px; }
         .var-thumb {
-            width: 68px; height: 68px; border: 1px solid var(--border);
-            padding: 3px; cursor: pointer; flex-shrink: 0; background: #080808;
-            position: relative; transition: 0.2s;
+            width: 66px; height: 66px; border: 1px solid var(--border);
+            padding: 3px; cursor: pointer; flex-shrink: 0; background: var(--card-img-bg);
+            position: relative;
         }
-        .var-thumb.active { border: 1.5px solid var(--accent); box-shadow: var(--glow-sm); }
+        .var-thumb.active { border: 2px solid var(--text); }
         .var-thumb img { width: 100%; height: 100%; object-fit: contain; }
         .var-count-badge {
             position: absolute; bottom: 2px; right: 2px;
-            background: rgba(0,0,0,0.8); color: #fff;
+            background: rgba(0,0,0,0.75); color: #fff;
             font-size: 9px; font-weight: 700; padding: 1px 4px;
-            border: 1px solid var(--border);
         }
-        .desc-box { border-top: 1px solid var(--border); padding-top: 14px; font-size: 13px; line-height: 1.6; color: #ccc; white-space: pre-line; }
+        .desc-box { border-top: 1px solid var(--border); padding-top: 14px; font-size: 13px; line-height: 1.6; color: var(--text); white-space: pre-line; }
+
+        /* ПОЛНОЭКРАННЫЙ ФИЛЬТР (КАК НА СКРИНШОТЕ SNEAKERS.COM.UA) */
+        .filter-drawer {
+            position: fixed; inset: 0; background: var(--bg);
+            z-index: 90; display: none; flex-direction: column;
+        }
+        .filter-header {
+            padding: 14px 16px; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .filter-header h3 { font-size: 16px; font-weight: 800; }
+        .filter-body { flex: 1; overflow-y: auto; padding: 16px; }
+        .filter-block {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 16px; margin-bottom: 16px;
+        }
+        .filter-block-title {
+            font-size: 11px; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 1px; margin-bottom: 12px; color: var(--text);
+        }
+        .sort-links { display: flex; gap: 10px; flex-wrap: wrap; font-size: 12px; }
+        .sort-link {
+            cursor: pointer; color: var(--subtext); padding-bottom: 2px;
+            border-bottom: 1.5px solid transparent;
+        }
+        .sort-link.active { color: var(--text); font-weight: 700; border-bottom-color: var(--text); }
+        .filter-check-list { display: flex; flex-direction: column; gap: 9px; }
+        .filter-check-item {
+            display: flex; align-items: center; gap: 9px;
+            font-size: 13px; color: var(--text); cursor: pointer;
+        }
+        .filter-check-item input { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+        .filter-sizes-grid {
+            display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;
+        }
+        .filter-sz-item {
+            padding: 7px 2px; text-align: center; font-size: 12px;
+            color: var(--subtext); cursor: pointer; border: 1px solid transparent;
+        }
+        .filter-sz-item.active {
+            color: var(--text); font-weight: 800; border-color: var(--text);
+            background: var(--surface);
+        }
+        .filter-footer {
+            padding: 12px 16px; border-top: 1px solid var(--border);
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+            background: var(--bg);
+        }
+
+        /* МОДАЛКИ И ФОРМЫ */
         .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(6px); z-index: 50; display: none;
-            align-items: center; justify-content: center; padding: 16px;
+            position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+            z-index: 80; display: none; align-items: center; justify-content: center; padding: 16px;
         }
         .modal-card {
-            background: var(--surface); width: 100%; max-width: 400px;
-            padding: 18px; border: 1px solid var(--accent);
-            box-shadow: var(--glow); max-height: 85vh; overflow-y: auto;
+            background: var(--bg); width: 100%; max-width: 400px;
+            padding: 18px; border: 1px solid var(--border); max-height: 85vh; overflow-y: auto;
         }
         .size-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12px; }
-        .size-table th, .size-table td { border: 1px solid var(--border); padding: 8px; text-align: center; color: var(--text); }
-        .size-table th { background: var(--surface-2); font-weight: 700; text-transform: uppercase; }
+        .size-table th, .size-table td { border: 1px solid var(--border); padding: 8px; text-align: center; }
+        .size-table th { background: var(--surface); font-weight: 700; }
         .pad-section { padding: 16px; }
         .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; font-size: 11px; font-weight: 700; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--subtext); }
+        .form-group label { display: block; font-size: 11px; font-weight: 700; margin-bottom: 5px; text-transform: uppercase; color: var(--subtext); }
         .form-group input, .form-group select, .form-group textarea {
             width: 100%; padding: 10px; border: 1px solid var(--border);
-            background: var(--surface); color: var(--text);
-            font-size: 13px; border-radius: 0; outline: none;
-        }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-            border-color: var(--accent); box-shadow: var(--glow-sm);
+            background: var(--surface); color: var(--text); font-size: 13px; outline: none;
         }
         .checkbox-row {
             display: flex; align-items: center; gap: 8px; padding: 10px;
             border: 1px solid var(--border); background: var(--surface);
             margin-bottom: 12px; cursor: pointer; font-size: 12px; font-weight: 700;
         }
-        .checkbox-row input { width: 18px; height: 18px; accent-color: var(--accent); }
         .cart-item {
             display: flex; justify-content: space-between; align-items: center;
-            border: 1px solid var(--border); padding: 12px;
-            margin-bottom: 8px; background: var(--surface);
+            border-bottom: 1px solid var(--border); padding: 12px 0;
         }
         .preview-strip { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
-        .preview-item { position: relative; width: 58px; height: 58px; border: 1px solid var(--border); background: #080808; }
+        .preview-item { position: relative; width: 58px; height: 58px; border: 1px solid var(--border); background: var(--surface); }
         .preview-item img { width: 100%; height: 100%; object-fit: cover; }
         .preview-del {
             position: absolute; top: -6px; right: -6px;
-            background: var(--accent); color: #000;
+            background: var(--accent); color: var(--accent-text);
             width: 18px; height: 18px; font-size: 11px; font-weight: 900;
             display: flex; align-items: center; justify-content: center; cursor: pointer;
         }
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0;
-            background: rgba(5, 5, 5, 0.94); backdrop-filter: blur(10px);
-            border-top: 1px solid var(--border);
-            display: flex; justify-content: space-around; padding: 14px 0; z-index: 30;
+            background: var(--bg); border-top: 1px solid var(--border);
+            display: flex; justify-content: space-around; padding: 13px 0; z-index: 30;
         }
         .nav-item {
             color: var(--subtext); font-size: 11px; font-weight: 800;
-            text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer;
-            transition: 0.2s;
+            text-transform: uppercase; letter-spacing: 1.2px; cursor: pointer;
         }
-        .nav-item.active {
-            color: var(--accent);
-            text-shadow: var(--glow);
-            text-decoration: underline; text-underline-offset: 6px;
-        }
+        .nav-item.active { color: var(--text); text-decoration: underline; text-underline-offset: 5px; }
         .status-box {
             padding: 10px; margin-bottom: 12px; font-size: 11px; font-weight: 700;
-            border: 1px solid var(--accent); background: rgba(255,255,255,0.06);
-            color: var(--accent); display: none; letter-spacing: 0.5px;
+            border: 1px solid var(--text); background: var(--surface);
+            color: var(--text); display: none;
         }
         .order-row-drag {
             display: flex; justify-content: space-between; align-items: center;
-            border: 1px solid var(--border); padding: 8px 10px;
-            margin-bottom: 6px; background: var(--surface-2);
+            border: 1px solid var(--border); padding: 7px 10px;
+            margin-bottom: 6px; background: var(--surface);
         }
 
-        /* Полноэкранный Zoom Lightbox */
+        /* LIGHTBOX ZOOM */
         .lightbox-overlay {
             position: fixed; inset: 0; background: rgba(0, 0, 0, 0.96);
             z-index: 100; display: none; flex-direction: column;
-            justify-content: space-between; user-select: none;
-            touch-action: none;
+            justify-content: space-between; user-select: none; touch-action: none;
         }
         .lightbox-top {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 14px 16px; border-bottom: 1px solid var(--border);
-            background: rgba(5,5,5,0.8); z-index: 2;
+            padding: 14px 16px; color: #fff; z-index: 2;
         }
-        .lightbox-counter { font-size: 12px; font-weight: 700; letter-spacing: 1.5px; color: var(--subtext); }
         .lightbox-controls { display: flex; gap: 8px; }
         .lb-btn {
-            background: var(--surface-2); color: var(--accent);
-            border: 1px solid var(--border); padding: 6px 12px;
-            font-size: 13px; font-weight: 800; cursor: pointer;
+            background: #222; color: #fff; border: 1px solid #444;
+            padding: 6px 12px; font-size: 13px; font-weight: 800; cursor: pointer;
         }
-        .lb-btn:active { border-color: var(--accent); box-shadow: var(--glow-sm); }
         .lightbox-stage {
             flex: 1; position: relative; display: flex;
             align-items: center; justify-content: center; overflow: hidden;
         }
         .lightbox-stage img {
             max-width: 100%; max-height: 100%; object-fit: contain;
-            transition: transform 0.15s ease-out; transform-origin: center center;
+            transition: transform 0.12s ease-out;
         }
     </style>
 </head>
-<body>
+<body data-theme="light">
 
 <header>
     <div class="logo-box" onclick="handleLogoTap()">
         <span class="logo-icon">T</span> TÉNÉBRIS
     </div>
-    <select id="currency" class="currency-select" onchange="refreshAllPrices()">
-        <option value="UAH" selected>₴ UAH</option>
-        <option value="USD">$ USD</option>
-        <option value="RUB">₽ RUB</option>
-        <option value="USDT">₮ USDT</option>
-    </select>
+    <div class="header-right">
+        <button class="theme-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="Сменить стиль">🌙</button>
+        <select id="currency" class="currency-select" onchange="refreshAllPrices()">
+            <option value="UAH" selected>₴ UAH</option>
+            <option value="USD">$ USD</option>
+            <option value="RUB">₽ RUB</option>
+            <option value="USDT">₮ USDT</option>
+        </select>
+    </div>
 </header>
 
+<!-- КАТАЛОГ -->
 <div id="page-catalog" class="section active">
-    <div class="search-wrap">
-        <input type="text" id="search-input" class="search-input" placeholder="🔍 Поиск модели или бренда..." oninput="renderCatalog()">
+    <div class="top-controls">
+        <input type="text" id="search-input" class="search-input" placeholder="🔍 Поиск модели, бренда или кода..." oninput="renderCatalog()">
+        <button class="filter-trigger-btn" onclick="openFilterDrawer()">
+            <span>Фильтр</span>
+            <span class="filter-badge-dot" id="filter-dot"></span>
+        </button>
     </div>
     <div class="tabs" id="gender-tabs"></div>
-    <div class="tabs" id="brand-tabs"></div>
     <div id="product-grid" class="grid"></div>
 </div>
 
+<!-- ПОЛНОЭКРАННЫЙ ФИЛЬТР (КАК НА ПРИМЕРЕ) -->
+<div id="filter-drawer" class="filter-drawer">
+    <div class="filter-header">
+        <h3>Фильтр</h3>
+        <span style="font-size:20px; cursor:pointer; padding:4px;" onclick="closeFilterDrawer()">✕</span>
+    </div>
+    <div class="filter-body">
+        <div class="filter-block">
+            <div class="filter-block-title">Сортировка</div>
+            <div class="sort-links">
+                <span class="sort-link active" data-sort="popular" onclick="selectSort('popular')">Популярные</span>
+                <span style="color:var(--border)">|</span>
+                <span class="sort-link" data-sort="cheap" onclick="selectSort('cheap')">Дешевле</span>
+                <span style="color:var(--border)">|</span>
+                <span class="sort-link" data-sort="expensive" onclick="selectSort('expensive')">Более дорогие</span>
+            </div>
+        </div>
+
+        <!-- Динамические группы фильтров, которыми управляет владелец -->
+        <div id="dynamic-filter-groups"></div>
+
+        <!-- Фильтр по размерам -->
+        <div class="filter-block">
+            <div class="filter-block-title">Размер</div>
+            <div class="filter-sizes-grid" id="filter-sizes-box"></div>
+        </div>
+
+        <!-- Фильтр по брендам -->
+        <div class="filter-block" style="border-bottom:none;">
+            <div class="filter-block-title">Бренд</div>
+            <div class="filter-check-list" id="filter-brands-box"></div>
+        </div>
+    </div>
+    <div class="filter-footer">
+        <button class="btn-black" onclick="applyFilterDrawer()">Применить</button>
+        <button class="btn-outline" onclick="clearAllFilters()">Очистить</button>
+    </div>
+</div>
+
+<!-- СТРАНИЦА ТОВАРА -->
 <div id="page-detail" class="section">
     <div class="detail-wrap">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
             <div class="back-link" onclick="openPage('catalog')">← Каталог</div>
             <div id="det-admin-btns" style="display:none; gap:8px;">
-                <button class="adm-mini-btn" onclick="startEditProduct(activeProduct.id)">✏️ Изменить</button>
-                <button class="adm-mini-btn del" onclick="deleteProduct(activeProduct.id)">🗑 Удалить</button>
+                <button class="adm-mini-btn" style="padding:6px 10px;" onclick="startEditProduct(activeProduct.id)">✏️ Изменить</button>
+                <button class="adm-mini-btn del" style="padding:6px 10px;" onclick="deleteProduct(activeProduct.id)">🗑 Удалить</button>
             </div>
         </div>
         <div class="slider-box">
             <div class="slide-arrow left" onclick="changeSlide(-1)">‹</div>
             <img id="det-main-img" src="" alt="Product" onclick="openLightbox()">
             <div class="slide-arrow right" onclick="changeSlide(1)">›</div>
-            <div class="zoom-hint">🔍 Нажми для увеличения</div>
+            <div class="zoom-hint">🔍 Увеличить</div>
         </div>
         <div id="det-dots" class="dots"></div>
         <div id="det-title" class="detail-title"></div>
@@ -348,23 +497,23 @@
             <span id="det-cur-price" class="detail-cur"></span>
         </div>
         <div id="det-sizes" class="sizes-grid"></div>
-        <div class="size-chart-link" onclick="openSizeModal()">📏 Размерная сетка (см стопы)</div>
+        <div class="size-chart-link" onclick="openSizeModal()">📏 Определить размер (см стопы)</div>
         <div class="action-row">
             <button class="btn-black" onclick="buyNowCurrent()">Быстрая покупка</button>
-            <button class="btn-outline" onclick="addCurrentToCart()">В корзину</button>
+            <button class="btn-outline" onclick="addCurrentToCart()">Добавить в корзину</button>
         </div>
         <div id="det-variants-block" style="display:none;">
-            <div class="variants-title">Цвет: <span id="det-color-name"></span></div>
+            <div class="variants-title">Другие цвета: <span id="det-color-name"></span></div>
             <div id="det-variants" class="variants-row"></div>
         </div>
         <div id="det-desc" class="desc-box"></div>
     </div>
 </div>
 
-<!-- Полноэкранный просмотр и зум фото -->
+<!-- ПОЛНОЭКРАННЫЙ ЗУМ ФОТО -->
 <div id="lightbox-modal" class="lightbox-overlay">
     <div class="lightbox-top">
-        <div id="lb-counter" class="lightbox-counter">1 / 1</div>
+        <div id="lb-counter" style="font-size:12px; font-weight:700;">1 / 1</div>
         <div class="lightbox-controls">
             <button class="lb-btn" onclick="adjustZoom(-0.5)">−</button>
             <button class="lb-btn" onclick="adjustZoom(0.5)">+</button>
@@ -378,10 +527,11 @@
     </div>
 </div>
 
+<!-- РАЗМЕРНАЯ СЕТКА -->
 <div id="size-modal" class="modal-overlay" onclick="closeSizeModal()">
     <div class="modal-card" onclick="event.stopPropagation()">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <strong style="font-size:13px; text-transform:uppercase; letter-spacing:1px;">📏 Размерная линейка</strong>
+            <strong style="font-size:13px; text-transform:uppercase;">📏 Размерная сетка</strong>
             <span style="cursor:pointer; font-size:18px; font-weight:bold;" onclick="closeSizeModal()">✕</span>
         </div>
         <div id="modal-size-content"></div>
@@ -389,8 +539,9 @@
     </div>
 </div>
 
+<!-- КОРЗИНА -->
 <div id="page-cart" class="section pad-section">
-    <h2 style="margin-bottom: 14px; font-size:16px; text-transform:uppercase; letter-spacing:2px;">Корзина</h2>
+    <h2 style="margin-bottom: 14px; font-size:16px; text-transform:uppercase; letter-spacing:1px;">Корзина</h2>
     <div id="cart-list"></div>
     <div id="cart-summary" style="margin-top: 18px; display: none;">
         <div class="form-group">
@@ -425,17 +576,19 @@
                 <option value="USDT / CryptoBot (@send)">Криптовалюта (USDT / @send)</option>
             </select>
         </div>
-        <div id="total-price" style="font-size:17px; font-weight:900; margin: 16px 0; color:var(--accent); text-shadow:var(--glow-sm);"></div>
+        <div id="total-price" style="font-size:17px; font-weight:900; margin: 16px 0;"></div>
         <button class="btn-black" onclick="submitOrder()">Оформить заказ</button>
     </div>
 </div>
 
+<!-- АДМИН-ПАНЕЛЬ ВЛАДЕЛЬЦА -->
 <div id="page-admin" class="section pad-section">
-    <h2 style="margin-bottom: 12px; font-size:16px; text-transform:uppercase; letter-spacing:2px;">⚙️ Панель TÉNÉBRIS</h2>
+    <h2 style="margin-bottom: 12px; font-size:16px; text-transform:uppercase; letter-spacing:1px;">⚙️ Управление TÉNÉBRIS</h2>
     
-    <details id="cloud-settings-box" style="border:1px solid var(--border); padding:10px; margin-bottom:16px; background:var(--surface);">
-        <summary style="font-size:11px; font-weight:800; cursor:pointer; text-transform:uppercase; letter-spacing:1px;">
-            ☁️ Настройка облака (GitHub и ImgBB)
+    <!-- Настройка облака и стиля по умолчанию -->
+    <details id="cloud-settings-box" style="border:1px solid var(--border); padding:10px; margin-bottom:12px; background:var(--surface);">
+        <summary style="font-size:11px; font-weight:800; cursor:pointer; text-transform:uppercase;">
+            ☁️ Ключи GitHub / ImgBB и тема по умолчанию
         </summary>
         <div style="margin-top:12px;">
             <div class="form-group">
@@ -447,49 +600,69 @@
                 <input type="password" id="cfg-gh-token" placeholder="ghp_xxxxxxxxxxxx">
             </div>
             <div class="form-group">
-                <label>ImgBB API Key</label>
-                <input type="password" id="cfg-imgbb-key" placeholder="api.imgbb.com ключ">
+                <label>ImgBB API Key (рекомендуется для быстрых фото)</label>
+                <input type="password" id="cfg-imgbb-key" placeholder="Ключ с api.imgbb.com">
             </div>
-            <button class="btn-black" style="padding:10px;" onclick="saveCloudConfig()">💾 Сохранить ключи</button>
+            <div class="form-group">
+                <label>Тема магазина для клиентов по умолчанию</label>
+                <select id="cfg-default-theme">
+                    <option value="light">☀️ Белая (минимализм без рамок)</option>
+                    <option value="dark">🌙 Чёрная (TÉNÉBRIS Cyber-Noir)</option>
+                </select>
+            </div>
+            <button class="btn-black" style="padding:10px;" onclick="saveCloudConfig()">💾 Сохранить настройки</button>
+        </div>
+    </details>
+
+    <!-- Управление категориями и всеми группами фильтра -->
+    <details style="border:1px solid var(--border); padding:10px; margin-bottom:16px; background:var(--surface);">
+        <summary style="font-size:11px; font-weight:800; cursor:pointer; text-transform:uppercase;">
+            🎛 Настройка фильтра и категорий (добавить / убрать)
+        </summary>
+        <div style="margin-top:12px;">
+            <p style="font-size:11px; color:var(--subtext); margin-bottom:10px;">
+                Ты можешь редактировать пункты внутри любой категории фильтра (Пол, Категория, Тип, Материал, Сезон) или создать новую группу.
+            </p>
+            <div id="admin-filter-groups-manager"></div>
+            <div style="border-top:1px dashed var(--border); padding-top:10px; margin-top:10px; display:flex; gap:6px;">
+                <input type="text" id="new-filter-group-title" placeholder="Новая группа (напр. Коллекция)" style="flex:1; padding:8px; font-size:12px; border:1px solid var(--border); background:var(--bg); color:var(--text);">
+                <button class="btn-black" style="width:auto; padding:8px 12px;" onclick="addFilterGroup()">+ Группа</button>
+            </div>
         </div>
     </details>
 
     <div id="admin-status" class="status-box"></div>
     
-    <details style="border:1px solid var(--border); padding:10px; margin-bottom:16px; background:var(--surface);">
-        <summary style="font-size:11px; font-weight:800; cursor:pointer; text-transform:uppercase; letter-spacing:1px;">
-            📂 Управление категориями (Синхронизация для всех)
-        </summary>
-        <div style="margin-top:12px;">
-            <div style="display:flex; gap:6px; margin-bottom:10px;">
-                <input type="text" id="new-category-name" placeholder="Новая категория" style="padding:8px; font-size:12px; border:1px solid var(--border); background:var(--bg); color:var(--text); flex:1;">
-                <button class="btn-black" style="width:auto; padding:8px 14px; font-size:11px;" onclick="addNewCategory()">+ Добавить</button>
-            </div>
-            <div id="manage-categories-list"></div>
-        </div>
-    </details>
-    
+    <!-- ФОРМА ТОВАРА -->
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-        <h3 id="form-mode-title" style="font-size:14px; text-transform:uppercase; letter-spacing:1px;">➕ Новый товар</h3>
-        <button id="cancel-edit-btn" class="adm-mini-btn" style="display:none;" onclick="resetAdminForm()">✕ Отменить</button>
+        <h3 id="form-mode-title" style="font-size:14px; text-transform:uppercase;">➕ Новый товар</h3>
+        <button id="cancel-edit-btn" class="adm-mini-btn" style="display:none; padding:5px 10px;" onclick="resetAdminForm()">✕ Отменить</button>
     </div>
     <input type="hidden" id="adm-edit-id" value="">
-    <div class="form-group">
-        <label>Категория товара</label>
-        <select id="adm-gender"></select>
+
+    <!-- Динамические селекты категорий фильтра -->
+    <div id="adm-dynamic-category-selects" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;"></div>
+
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+        <div class="form-group">
+            <label>Бренд *</label>
+            <input type="text" id="adm-brand" placeholder="Nike, Asics, Jordan">
+        </div>
+        <div class="form-group">
+            <label>Код товара (Артикул)</label>
+            <input type="text" id="adm-code" placeholder="Напр: S-2359591">
+        </div>
     </div>
+
     <div class="form-group">
-        <label>Бренд</label>
-        <input type="text" id="adm-brand" placeholder="Например: Asics, Nike, Rick Owens">
+        <label>Название модели *</label>
+        <input type="text" id="adm-title" placeholder="NIKE ZOOM PULSE CORDURA BLACK TERMO">
     </div>
-    <div class="form-group">
-        <label>Название модели</label>
-        <input type="text" id="adm-title" placeholder="Asics Gel NYC">
-    </div>
+
     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
         <div class="form-group">
             <label>Цена *</label>
-            <input type="number" id="adm-price" placeholder="4145">
+            <input type="number" id="adm-price" placeholder="3416">
         </div>
         <div class="form-group">
             <label>Валюта ввода</label>
@@ -501,20 +674,21 @@
             </select>
         </div>
     </div>
+
     <label class="checkbox-row">
         <input type="checkbox" id="adm-has-discount" onchange="toggleDiscountBox()">
-        <span>🔥 Назначить скидку (старая цена)</span>
+        <span>🔥 Назначить скидку (перечеркнутая старая цена)</span>
     </label>
     <div id="discount-settings" style="display:none; border:1px solid var(--border); padding:10px; margin-bottom:12px; background:var(--surface-2);">
         <div class="form-group" style="margin-bottom:0;">
             <label>Старая цена до скидки</label>
-            <input type="number" id="adm-old-price" placeholder="8810">
+            <input type="number" id="adm-old-price" placeholder="6970">
         </div>
     </div>
 
     <div class="form-group">
         <label>Название основного цвета *</label>
-        <input type="text" id="adm-main-color" placeholder="Например: Obsidian Black / Graphite">
+        <input type="text" id="adm-main-color" placeholder="Например: Black / Cordura">
     </div>
     <div class="form-group">
         <label>Фотографии основного цвета (можно несколько)</label>
@@ -523,13 +697,13 @@
     </div>
 
     <div style="border:1px solid var(--border); padding:12px; margin-bottom:14px; background:var(--surface);">
-        <label style="font-size:11px; font-weight:800; display:block; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.8px; color:var(--accent);">
-            🎨 Дополнительные цвета (несколько фото на каждый цвет)
+        <label style="font-size:11px; font-weight:800; display:block; margin-bottom:8px; text-transform:uppercase;">
+            🎨 Дополнительные цвета (можно несколько фото на каждый цвет)
         </label>
-        <input type="text" id="var-color-name" placeholder="Название цвета (напр. White Silver)" style="margin-bottom:8px; width:100%; padding:9px; background:var(--bg); border:1px solid var(--border); color:var(--text);">
-        <input type="file" id="var-color-files" accept="image/*" multiple onchange="handleVariantDraftFiles(this)" style="margin-bottom:8px; width:100%; color:var(--subtext); font-size:12px;">
+        <input type="text" id="var-color-name" placeholder="Название цвета (напр. White / Grey)" style="margin-bottom:8px; width:100%; padding:9px; background:var(--bg); border:1px solid var(--border); color:var(--text);">
+        <input type="file" id="var-color-files" accept="image/*" multiple onchange="handleVariantDraftFiles(this)" style="margin-bottom:8px; width:100%; font-size:12px;">
         <div id="var-temp-preview" class="preview-strip" style="margin-bottom:8px;"></div>
-        <button type="button" class="btn-outline" style="padding:8px;" onclick="addVariantDraft()">+ Прикрепить этот цвет с фото</button>
+        <button type="button" class="btn-outline" style="padding:8px;" onclick="addVariantDraft()">+ Прикрепить этот цвет</button>
         <div id="var-draft-list" class="preview-strip" style="margin-top:10px;"></div>
     </div>
 
@@ -538,17 +712,19 @@
         <textarea id="adm-sizes" rows="3">36=23см, 37=23.5см, 38=24см, 39=24.5см, 40=25см, 41=26см, 42=26.5см, 43=27.5см, 44=28см, 45=29см</textarea>
     </div>
     <div class="form-group">
-        <label>Фото размерной сетки</label>
+        <label>Фото размерной сетки (необязательно)</label>
         <input type="file" id="adm-chart-file" accept="image/*" onchange="handleChartPhoto(this)">
         <div id="adm-chart-preview" class="preview-strip"></div>
     </div>
     <div class="form-group">
         <label>Описание товара</label>
-        <textarea id="adm-desc" rows="3" placeholder="Материалы, особенности модели..."></textarea>
+        <textarea id="adm-desc" rows="3" placeholder="Материалы, сезон, особенности модели..."></textarea>
     </div>
+
     <button id="save-prod-btn" class="btn-black" onclick="saveNewProduct()">✅ Сохранить и опубликовать</button>
-    <h3 style="margin: 24px 0 10px; font-size:14px; text-transform:uppercase; letter-spacing:1px; border-top:1px solid var(--border); padding-top:16px;">
-        📦 Управление каталогом
+
+    <h3 style="margin: 24px 0 10px; font-size:14px; text-transform:uppercase; border-top:1px solid var(--border); padding-top:16px;">
+        📦 Порядок и управление товарами (▲ / ▼)
     </h3>
     <div id="admin-products-list"></div>
 </div>
@@ -567,35 +743,63 @@
     const tgUser = (tg.initDataUnsafe?.user?.username || "").toLowerCase();
     let isOwner = (urlParams.get('admin') === '1') || (tgUser === 'endry_sit');
 
+    /* СТАНДАРТНЫЕ ГРУППЫ ФИЛЬТРА (КАК НА СКРИНШОТЕ SNEAKERS.COM.UA) */
+    const defaultFilterGroups = [
+        { id: 'gender', title: 'Пол', options: ['Мужчинам', 'Женщинам', 'Унисекс'] },
+        { id: 'category', title: 'Категория', options: ['Обувь', 'Одежда', 'Аксессуары'] },
+        { id: 'type', title: 'Тип', options: ['Кроссовки', 'Ботинки', 'Кеды', 'Вьетнамки и Шлепанцы'] },
+        { id: 'material', title: 'Материал', options: ['Кожа', 'Замша', 'Текстиль', 'Нубук', 'Gore-Tex'] },
+        { id: 'season', title: 'Сезон', options: ['Весна-Лето', 'Демисезон', 'Зима'] }
+    ];
+
+    let filterGroups = JSON.parse(JSON.stringify(defaultFilterGroups));
+    let defaultStoreTheme = localStorage.getItem('tenebris_theme') || 'light';
+
+    /* ТЕМА (БЕЛАЯ / ЧЁРНАЯ) */
+    function applyTheme(theme) {
+        document.body.setAttribute('data-theme', theme);
+        document.getElementById('theme-toggle-btn').innerText = theme === 'dark' ? '☀️' : '🌙';
+        localStorage.setItem('tenebris_theme', theme);
+    }
+
+    function toggleTheme() {
+        const current = document.body.getAttribute('data-theme') || 'light';
+        applyTheme(current === 'dark' ? 'light' : 'dark');
+    }
+
+    applyTheme(defaultStoreTheme);
+
     function unlockAdminUI() {
         isOwner = true;
         document.getElementById('nav-admin').style.display = 'block';
         document.getElementById('det-admin-btns').style.display = 'flex';
         initCloudSettingsForm();
+        renderAdminFilterGroupsManager();
+        renderAdminCategorySelects();
         renderAdminProductList();
-        renderCategoryOptions();
-        renderCategoryManagerUI();
     }
 
     function detectGitHubRepo() {
         const saved = localStorage.getItem('cfg_gh_repo');
-        if (saved) return saved;
-        return 'Ricard9760/shop';
+        return saved ? saved : 'Ricard9760/shop';
     }
 
     function initCloudSettingsForm() {
         document.getElementById('cfg-repo').value = detectGitHubRepo();
         document.getElementById('cfg-gh-token').value = localStorage.getItem('cfg_gh_token') || '';
         document.getElementById('cfg-imgbb-key').value = localStorage.getItem('cfg_imgbb_key') || '';
+        document.getElementById('cfg-default-theme').value = defaultStoreTheme;
     }
 
-    function saveCloudConfig() {
+    async function saveCloudConfig() {
         localStorage.setItem('cfg_gh_repo', document.getElementById('cfg-repo').value.trim());
         localStorage.setItem('cfg_gh_token', document.getElementById('cfg-gh-token').value.trim());
         localStorage.setItem('cfg_imgbb_key', document.getElementById('cfg-imgbb-key').value.trim());
-        alert('✅ Ключи сохранены!');
+        defaultStoreTheme = document.getElementById('cfg-default-theme').value;
+        applyTheme(defaultStoreTheme);
         document.getElementById('cloud-settings-box').open = false;
-        loadSharedCatalog();
+        await syncCatalogToGitHub();
+        alert('✅ Настройки сохранены!');
     }
 
     let logoTapCount = 0;
@@ -624,16 +828,18 @@
     const rates = {
         USD: { rate: 1, sym: '$' },
         USDT: { rate: 1, sym: '₮' },
-        UAH: { rate: 41.5, sym: '₴' },
+        UAH: { rate: 41.5, sym: 'грн' },
         RUB: { rate: 96, sym: '₽' }
     };
 
     let products = [];
-    let customGenderOrder = ['ALL', 'Мужские', 'Женские', 'Унисекс'];
-    let customBrandOrder = [];
+    let selectedQuickTab = 'ALL';
 
-    let selectedGender = 'ALL';
-    let selectedBrand = 'ALL';
+    /* СОСТОЯНИЕ ФИЛЬТРА */
+    let currentSort = 'popular';
+    let activeFilterSelections = {}; // { groupId: Set of selected values }
+    let activeFilterSizes = new Set();
+    let activeFilterBrands = new Set();
 
     let activeProduct = null;
     let activeSlideIdx = 0;
@@ -652,10 +858,15 @@
             products = cloudData;
         } else if (cloudData && typeof cloudData === 'object') {
             if (Array.isArray(cloudData.products)) products = cloudData.products;
-            if (Array.isArray(cloudData.categories) && cloudData.categories.length > 0) {
-                customGenderOrder = cloudData.categories.includes('ALL')
-                    ? cloudData.categories
-                    : ['ALL', ...cloudData.categories];
+            if (Array.isArray(cloudData.filterGroups) && cloudData.filterGroups.length > 0) {
+                filterGroups = cloudData.filterGroups;
+            } else if (Array.isArray(cloudData.categories) && cloudData.categories.length > 0) {
+                const cleanCats = cloudData.categories.filter(c => c !== 'ALL');
+                if (cleanCats.length) filterGroups[0].options = cleanCats;
+            }
+            if (cloudData.defaultTheme && !localStorage.getItem('user_switched_theme')) {
+                defaultStoreTheme = cloudData.defaultTheme;
+                applyTheme(defaultStoreTheme);
             }
         }
     }
@@ -689,36 +900,43 @@
         }
 
         if (!loadedFromCloud) {
-            const local = localStorage.getItem('tenebris_catalog_v1');
+            const local = localStorage.getItem('tenebris_catalog_v2');
             if (local) applyCloudPayload(JSON.parse(local));
         } else {
-            localStorage.setItem('tenebris_catalog_v1', JSON.stringify({
-                categories: customGenderOrder,
-                products: products
+            localStorage.setItem('tenebris_catalog_v2', JSON.stringify({
+                filterGroups,
+                defaultTheme: defaultStoreTheme,
+                products
             }));
         }
 
-        if (!customGenderOrder.includes(selectedGender)) selectedGender = 'ALL';
-
         renderCatalog();
         if (isOwner) {
+            renderAdminFilterGroupsManager();
+            renderAdminCategorySelects();
             renderAdminProductList();
-            renderCategoryOptions();
-            renderCategoryManagerUI();
         }
     }
 
     async function syncCatalogToGitHub() {
-        const repo = document.getElementById('cfg-repo').value.trim() || detectGitHubRepo();
+        const repo = (document.getElementById('cfg-repo')?.value || '').trim() || detectGitHubRepo();
         const token = localStorage.getItem('cfg_gh_token');
+
+        const payloadData = {
+            filterGroups,
+            defaultTheme: defaultStoreTheme,
+            products
+        };
+        localStorage.setItem('tenebris_catalog_v2', JSON.stringify(payloadData));
+
         if (!token) {
-            alert('⚠️ Введите GitHub Token в настройках админки, чтобы изменения сохранились у всех пользователей!');
+            alert('⚠️ Внимание: не указан GitHub Token в настройках админки! Изменения сохранены только локально.');
             return false;
         }
 
         const statusEl = document.getElementById('admin-status');
         statusEl.style.display = 'block';
-        statusEl.innerText = '⏳ Синхронизация с облаком TÉNÉBRIS...';
+        statusEl.innerText = '⏳ Синхронизация с сервером GitHub...';
 
         const apiUrl = `https://api.github.com/repos/${repo}/contents/products.json`;
         let sha = null;
@@ -734,40 +952,46 @@
             }
         } catch (e) {}
 
-        const payloadData = {
-            categories: customGenderOrder,
-            products: products
-        };
-
-        localStorage.setItem('tenebris_catalog_v1', JSON.stringify(payloadData));
-
         const contentStr = JSON.stringify(payloadData, null, 2);
         const contentBase64 = btoa(unescape(encodeURIComponent(contentStr)));
 
+        // Проверка размера для GitHub Contents API (лимит 1 МБ)
+        if (contentBase64.length > 1350000) {
+            statusEl.innerText = '⚠️ Слишком много тяжелых фото без ключа ImgBB.';
+            alert('⚠️ Размер базы превысил лимит GitHub (1 МБ), так как фото сохранены без ключа ImgBB. Добавьте бесплатный ключ api.imgbb.com в настройках админки или уменьшите количество фото.');
+            return false;
+        }
+
         const bodyObj = {
-            message: "Sync TÉNÉBRIS catalog & categories",
+            message: "Sync TÉNÉBRIS store data",
             content: contentBase64
         };
         if (sha) bodyObj.sha = sha;
 
-        const putRes = await fetch(apiUrl, {
-            method: 'PUT',
-            headers: {
-                'Authorization': `token ${token}`,
-                'Content-Type': 'application/json',
-                'Accept': 'application/vnd.github.v3+json'
-            },
-            body: JSON.stringify(bodyObj)
-        });
+        try {
+            const putRes = await fetch(apiUrl, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${token}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/vnd.github.v3+json'
+                },
+                body: JSON.stringify(bodyObj)
+            });
 
-        if (putRes.ok) {
-            statusEl.innerText = '✅ Синхронизировано! Изменения доступны всем пользователям.';
-            setTimeout(() => { statusEl.style.display = 'none'; }, 4000);
-            return true;
-        } else {
-            const errJson = await putRes.json().catch(() => ({}));
-            statusEl.innerText = '⚠️ Ошибка синхронизации GitHub.';
-            alert('⚠️ Ошибка GitHub: ' + (errJson.message || putRes.statusText));
+            if (putRes.ok) {
+                statusEl.innerText = '✅ Синхронизировано! Изменения видны на всех аккаунтах.';
+                setTimeout(() => { statusEl.style.display = 'none'; }, 3500);
+                return true;
+            } else {
+                const errJson = await putRes.json().catch(() => ({}));
+                statusEl.innerText = '⚠️ Ошибка GitHub: ' + (errJson.message || putRes.statusText);
+                alert('⚠️ Ошибка GitHub: ' + (errJson.message || putRes.statusText));
+                return false;
+            }
+        } catch (netErr) {
+            statusEl.innerText = '⚠️ Ошибка сети при отправке на GitHub.';
+            alert('⚠️ Ошибка соединения при сохранении. Проверьте интернет или добавьте ключ ImgBB для сжатия фото.');
             return false;
         }
     }
@@ -786,93 +1010,266 @@
         if (isOwner) renderAdminProductList();
     }
 
-    function renderGenderTabs() {
-        const wrap = document.getElementById('gender-tabs');
-        wrap.innerHTML = customGenderOrder.map(g => {
-            const label = g === 'ALL' ? 'Все' : g;
-            return `<button class="tab-btn ${selectedGender === g ? 'active' : ''}" onclick="setGender('${g}')">${label}</button>`;
-        }).join('');
-    }
-
-    function renderCategoryOptions() {
-        const select = document.getElementById('adm-gender');
-        const cats = customGenderOrder.filter(c => c !== 'ALL');
-        select.innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
-    }
-
-    function renderCategoryManagerUI() {
-        const wrap = document.getElementById('manage-categories-list');
-        const cats = customGenderOrder.filter(c => c !== 'ALL');
-        wrap.innerHTML = cats.map(cat => `
-            <div class="order-row-drag">
-                <span style="font-size:12px; font-weight:700;">${cat}</span>
-                <button class="adm-mini-btn del" onclick="removeCategory('${cat}')">🗑 Удалить</button>
+    /* УПРАВЛЕНИЕ ГРУППАМИ ФИЛЬТРА В АДМИНКЕ */
+    function renderAdminFilterGroupsManager() {
+        const wrap = document.getElementById('admin-filter-groups-manager');
+        if (!wrap) return;
+        wrap.innerHTML = filterGroups.map((grp, gIdx) => `
+            <div style="border:1px solid var(--border); padding:8px; margin-bottom:8px; background:var(--bg);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <strong style="font-size:11px; text-transform:uppercase;">${grp.title}</strong>
+                    ${gIdx > 0 ? `<button class="adm-mini-btn del" style="padding:2px 6px;" onclick="removeFilterGroup(${gIdx})">Удалить группу</button>` : ''}
+                </div>
+                <div style="display:flex; gap:5px; flex-wrap:wrap; margin-bottom:6px;">
+                    ${grp.options.map((opt, oIdx) => `
+                        <span style="font-size:11px; background:var(--surface); border:1px solid var(--border); padding:3px 7px; display:inline-flex; align-items:center; gap:5px;">
+                            ${opt}
+                            <b style="cursor:pointer; color:var(--danger);" onclick="removeFilterOption(${gIdx}, ${oIdx})">✕</b>
+                        </span>
+                    `).join('')}
+                </div>
+                <div style="display:flex; gap:6px;">
+                    <input type="text" id="new-opt-${gIdx}" placeholder="Новый пункт..." style="flex:1; padding:6px; font-size:11px; border:1px solid var(--border); background:var(--surface); color:var(--text);">
+                    <button class="adm-mini-btn" style="padding:6px 10px;" onclick="addFilterOption(${gIdx})">+ Добавить</button>
+                </div>
             </div>
         `).join('');
     }
 
-    async function addNewCategory() {
-        const input = document.getElementById('new-category-name');
-        const name = input.value.trim();
-        if (!name) return;
-        if (customGenderOrder.includes(name)) { alert('Такая категория уже есть!'); return; }
-        customGenderOrder.push(name);
-        input.value = '';
-        renderGenderTabs();
-        renderCategoryOptions();
-        renderCategoryManagerUI();
-        await syncCatalogToGitHub();
+    async function addFilterOption(gIdx) {
+        const inp = document.getElementById(`new-opt-${gIdx}`);
+        const val = inp.value.trim();
+        if (!val) return;
+        if (!filterGroups[gIdx].options.includes(val)) {
+            filterGroups[gIdx].options.push(val);
+            inp.value = '';
+            renderAdminFilterGroupsManager();
+            renderAdminCategorySelects();
+            renderCatalog();
+            await syncCatalogToGitHub();
+        }
     }
 
-    async function removeCategory(catName) {
-        if (customGenderOrder.filter(c => c !== 'ALL').length <= 1) {
-            alert('Нельзя удалить последнюю категорию!');
+    async function removeFilterOption(gIdx, oIdx) {
+        if (gIdx === 0 && filterGroups[0].options.length <= 1) {
+            alert('В первой группе должен остаться хотя бы 1 пункт!');
             return;
         }
-        if (!confirm(`Удалить категорию «${catName}» у всех пользователей?`)) return;
-        const fallbackCat = customGenderOrder.find(c => c !== 'ALL' && c !== catName);
-        products.forEach(p => { if (p.gender === catName) p.gender = fallbackCat; });
-        customGenderOrder = customGenderOrder.filter(c => c !== catName);
-        if (selectedGender === catName) selectedGender = 'ALL';
-        renderGenderTabs();
-        renderCategoryOptions();
-        renderCategoryManagerUI();
+        filterGroups[gIdx].options.splice(oIdx, 1);
+        renderAdminFilterGroupsManager();
+        renderAdminCategorySelects();
         renderCatalog();
         await syncCatalogToGitHub();
     }
 
-    function renderBrandTabs() {
-        const wrap = document.getElementById('brand-tabs');
-        const existingBrands = [...new Set(products.map(p => p.brand))];
-        existingBrands.forEach(b => { if (!customBrandOrder.includes(b)) customBrandOrder.push(b); });
-        customBrandOrder = customBrandOrder.filter(b => existingBrands.includes(b));
-        const fullBrands = ['ALL', ...customBrandOrder];
-        wrap.innerHTML = fullBrands.map(b => `
-            <button class="tab-btn ${selectedBrand === b ? 'active' : ''}" onclick="setBrand('${b}')">
-                ${b === 'ALL' ? 'Все бренды' : b}
+    async function addFilterGroup() {
+        const inp = document.getElementById('new-filter-group-title');
+        const title = inp.value.trim();
+        if (!title) return;
+        const id = 'grp_' + Date.now();
+        filterGroups.push({ id, title, options: ['Базовый'] });
+        inp.value = '';
+        renderAdminFilterGroupsManager();
+        renderAdminCategorySelects();
+        await syncCatalogToGitHub();
+    }
+
+    async function removeFilterGroup(gIdx) {
+        if (!confirm(`Удалить группу фильтра «${filterGroups[gIdx].title}»?`)) return;
+        filterGroups.splice(gIdx, 1);
+        renderAdminFilterGroupsManager();
+        renderAdminCategorySelects();
+        await syncCatalogToGitHub();
+    }
+
+    function renderAdminCategorySelects(productAttrs = {}) {
+        const wrap = document.getElementById('adm-dynamic-category-selects');
+        if (!wrap) return;
+        wrap.innerHTML = filterGroups.map(grp => {
+            const currentVal = productAttrs[grp.id] || '';
+            const optsHtml = `<option value="">— Не выбрано —</option>` + grp.options.map(o =>
+                `<option value="${o}" ${currentVal === o ? 'selected' : ''}>${o}</option>`
+            ).join('');
+            return `
+                <div class="form-group">
+                    <label>${grp.title}</label>
+                    <select id="adm-attr-${grp.id}">${optsHtml}</select>
+                </div>
+            `;
+        }).join('');
+    }
+
+    /* ОКНО ФИЛЬТРА */
+    function openFilterDrawer() {
+        renderFilterDrawerContent();
+        document.getElementById('filter-drawer').style.display = 'flex';
+    }
+
+    function closeFilterDrawer() {
+        document.getElementById('filter-drawer').style.display = 'none';
+    }
+
+    function selectSort(sortType) {
+        currentSort = sortType;
+        document.querySelectorAll('.sort-link').forEach(el => {
+            el.classList.toggle('active', el.getAttribute('data-sort') === sortType);
+        });
+    }
+
+    function renderFilterDrawerContent() {
+        const dynWrap = document.getElementById('dynamic-filter-groups');
+        dynWrap.innerHTML = filterGroups.map(grp => {
+            const selectedSet = activeFilterSelections[grp.id] || new Set();
+            return `
+                <div class="filter-block">
+                    <div class="filter-block-title">${grp.title}</div>
+                    <div class="filter-check-list">
+                        ${grp.options.map(opt => `
+                            <label class="filter-check-item">
+                                <input type="checkbox" ${selectedSet.has(opt) ? 'checked' : ''} onchange="toggleFilterAttr('${grp.id}', '${opt}', this.checked)">
+                                <span>${opt}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        // Все размеры из товаров
+        const allSizes = [...new Set(products.flatMap(p => (p.sizes || []).map(s => s.size)))].sort((a, b) => parseFloat(a) - parseFloat(b));
+        const szList = allSizes.length ? allSizes : ['36', '37', '38', '39', '40', '41', '42', '43', '44', '45'];
+        document.getElementById('filter-sizes-box').innerHTML = szList.map(sz => `
+            <div class="filter-sz-item ${activeFilterSizes.has(sz) ? 'active' : ''}" onclick="toggleFilterSize('${sz}')">${sz}</div>
+        `).join('');
+
+        // Все бренды
+        const allBrands = [...new Set(products.map(p => p.brand).filter(Boolean))];
+        document.getElementById('filter-brands-box').innerHTML = allBrands.map(b => `
+            <label class="filter-check-item">
+                <input type="checkbox" ${activeFilterBrands.has(b) ? 'checked' : ''} onchange="toggleFilterBrand('${b}', this.checked)">
+                <span>${b}</span>
+            </label>
+        `).join('') || '<span style="font-size:12px; color:var(--subtext);">Нет брендов</span>';
+    }
+
+    function toggleFilterAttr(groupId, val, checked) {
+        if (!activeFilterSelections[groupId]) activeFilterSelections[groupId] = new Set();
+        if (checked) activeFilterSelections[groupId].add(val);
+        else activeFilterSelections[groupId].delete(val);
+    }
+
+    function toggleFilterSize(sz) {
+        if (activeFilterSizes.has(sz)) activeFilterSizes.delete(sz);
+        else activeFilterSizes.add(sz);
+        renderFilterDrawerContent();
+    }
+
+    function toggleFilterBrand(brand, checked) {
+        if (checked) activeFilterBrands.add(brand);
+        else activeFilterBrands.delete(brand);
+    }
+
+    function applyFilterDrawer() {
+        closeFilterDrawer();
+        renderCatalog();
+    }
+
+    function clearAllFilters() {
+        currentSort = 'popular';
+        activeFilterSelections = {};
+        activeFilterSizes.clear();
+        activeFilterBrands.clear();
+        selectedQuickTab = 'ALL';
+        selectSort('popular');
+        renderFilterDrawerContent();
+        renderCatalog();
+        closeFilterDrawer();
+    }
+
+    /* БЫСТРЫЕ ТАБЫ И РЕНДЕР КАТАЛОГА */
+    function renderQuickTabs() {
+        const wrap = document.getElementById('gender-tabs');
+        const firstGroup = filterGroups[0] || { options: [] };
+        const tabs = ['ALL', ...firstGroup.options];
+        wrap.innerHTML = tabs.map(t => `
+            <button class="tab-btn ${selectedQuickTab === t ? 'active' : ''}" onclick="setQuickTab('${t}')">
+                ${t === 'ALL' ? 'Все модели' : t}
             </button>
         `).join('');
     }
 
-    function setGender(g) { selectedGender = g; renderGenderTabs(); renderCatalog(); }
-    function setBrand(b) { selectedBrand = b; renderBrandTabs(); renderCatalog(); }
+    function setQuickTab(t) {
+        selectedQuickTab = t;
+        renderCatalog();
+    }
+
+    function copyCodeText(code, e) {
+        if (e) e.stopPropagation();
+        navigator.clipboard?.writeText(code);
+        if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+    }
 
     function renderCatalog() {
-        renderGenderTabs();
-        renderBrandTabs();
+        renderQuickTabs();
         const q = document.getElementById('search-input').value.toLowerCase().trim();
         const grid = document.getElementById('product-grid');
         grid.innerHTML = '';
 
-        const filtered = products.filter(p => {
-            const matchG = selectedGender === 'ALL' || p.gender === selectedGender;
-            const matchB = selectedBrand === 'ALL' || p.brand.toLowerCase() === selectedBrand.toLowerCase();
-            const matchQ = !q || p.title.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q);
-            return matchG && matchB && matchQ;
+        // Проверка активности фильтров для индикатора
+        const hasActiveFilters = currentSort !== 'popular' ||
+            activeFilterSizes.size > 0 ||
+            activeFilterBrands.size > 0 ||
+            Object.values(activeFilterSelections).some(set => set && set.size > 0);
+        document.getElementById('filter-dot').style.display = hasActiveFilters ? 'inline-block' : 'none';
+
+        const firstGroupId = filterGroups[0]?.id || 'gender';
+
+        let filtered = products.filter(p => {
+            const pAttrs = p.attrs || {};
+            const pMainCat = pAttrs[firstGroupId] || p.gender || '';
+
+            // 1. Быстрый таб сверху
+            if (selectedQuickTab !== 'ALL' && pMainCat !== selectedQuickTab) return false;
+
+            // 2. Поиск по названию, бренду или коду товара
+            const codeStr = (p.code || 'T-' + p.id).toLowerCase();
+            const matchQ = !q ||
+                (p.title || '').toLowerCase().includes(q) ||
+                (p.brand || '').toLowerCase().includes(q) ||
+                codeStr.includes(q);
+            if (!matchQ) return false;
+
+            // 3. Фильтры по динамическим группам
+            for (const grp of filterGroups) {
+                const selSet = activeFilterSelections[grp.id];
+                if (selSet && selSet.size > 0) {
+                    const val = pAttrs[grp.id] || (grp.id === 'gender' ? p.gender : '');
+                    if (!selSet.has(val)) return false;
+                }
+            }
+
+            // 4. Фильтр по размеру
+            if (activeFilterSizes.size > 0) {
+                const prodSizes = (p.sizes || []).map(s => String(s.size));
+                const hasSize = prodSizes.some(sz => activeFilterSizes.has(sz));
+                if (!hasSize) return false;
+            }
+
+            // 5. Фильтр по бренду
+            if (activeFilterBrands.size > 0 && !activeFilterBrands.has(p.brand)) return false;
+
+            return true;
         });
 
+        // Сортировка
+        if (currentSort === 'cheap') {
+            filtered = [...filtered].sort((a, b) => a.priceUSD - b.priceUSD);
+        } else if (currentSort === 'expensive') {
+            filtered = [...filtered].sort((a, b) => b.priceUSD - a.priceUSD);
+        }
+
         if (filtered.length === 0) {
-            grid.innerHTML = '<p style="grid-column: 1 / -1; text-align:center; padding: 40px 10px; color:var(--subtext); font-size:12px; letter-spacing:1px; text-transform:uppercase;">В каталоге пока нет товаров</p>';
+            grid.innerHTML = '<p style="grid-column: 1 / -1; text-align:center; padding: 45px 10px; color:var(--subtext); font-size:12px; text-transform:uppercase;">Товары не найдены</p>';
             return;
         }
 
@@ -882,25 +1279,34 @@
             const perc = hasDiscount ? Math.round((1 - p.priceUSD / p.oldPriceUSD) * 100) : 0;
             const badgeHtml = hasDiscount ? `<div class="sale-badge">-${perc}%</div>` : '';
 
+            const prodCode = p.code || ('S-' + p.id);
+            const coverImg = (p.images && p.images[0]) || (p.variants && p.variants[0]?.images?.[0]) || '';
+
             const adminBtnsHtml = isOwner ? `
                 <div class="admin-card-actions" onclick="event.stopPropagation()">
-                    <button class="adm-mini-btn" onclick="startEditProduct(${p.id})">✏️ Изм.</button>
-                    <button class="adm-mini-btn del" onclick="deleteProduct(${p.id})">🗑 Удал.</button>
+                    <button class="adm-mini-btn" title="Переместить левее/выше" onclick="moveProductOrder(${p.id}, -1)">◀</button>
+                    <button class="adm-mini-btn" title="Переместить правее/ниже" onclick="moveProductOrder(${p.id}, 1)">▶</button>
+                    <button class="adm-mini-btn" onclick="startEditProduct(${p.id})">✏️</button>
+                    <button class="adm-mini-btn del" onclick="deleteProduct(${p.id})">🗑</button>
                 </div>
             ` : '';
-
-            const coverImg = (p.images && p.images[0]) || (p.variants && p.variants[0]?.images?.[0]) || '';
 
             grid.innerHTML += `
                 <div class="card" onclick="openProductDetail(${p.id}, true)">
                     ${badgeHtml}
                     <div>
-                        <img src="${coverImg}" alt="${p.title}">
-                        <div class="card-brand">${p.brand} • ${p.gender}</div>
+                        <div class="card-img-wrap">
+                            <img src="${coverImg}" alt="${p.title}">
+                        </div>
+                        <div class="add-pill-btn" onclick="quickAddFromCard(${p.id}, event)">🛍 Добавить</div>
                         <div class="card-title">${p.title}</div>
+                        <div class="card-code" onclick="copyCodeText('${prodCode}', event)">
+                            Код товара: ${prodCode} 📋
+                        </div>
                     </div>
                     <div>
                         <div class="price-row">${oldHtml}<span class="cur-price">${formatMoney(p.priceUSD)}</span></div>
+                        <button class="card-buy-btn" onclick="quickBuyFromCard(${p.id}, event)">Быстрая покупка</button>
                         ${adminBtnsHtml}
                     </div>
                 </div>
@@ -908,23 +1314,59 @@
         });
     }
 
+    function quickAddFromCard(id, e) {
+        if (e) e.stopPropagation();
+        const p = products.find(x => x.id === id);
+        if (!p) return;
+        const normVars = normalizeVariants(p);
+        const firstSz = p.sizes && p.sizes.length ? p.sizes[0] : { size: '41', cm: '' };
+        cart.push({
+            id: p.id, code: p.code || ('S-' + p.id), title: p.title, brand: p.brand,
+            priceUSD: p.priceUSD, size: firstSz.size, cm: firstSz.cm, color: normVars[0].name
+        });
+        document.getElementById('cart-count').innerText = cart.length;
+        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+        alert(`Добавлено в корзину: ${p.title} (р. ${firstSz.size})`);
+    }
+
+    function quickBuyFromCard(id, e) {
+        quickAddFromCard(id, e);
+        openPage('cart');
+    }
+
+    /* СМЕНА ПОРЯДКА ТОВАРОВ НА ГЛАВНОМ ЭКРАНЕ */
+    async function moveProductOrder(id, direction) {
+        const idx = products.findIndex(x => x.id === id);
+        if (idx === -1) return;
+        const newIdx = idx + direction;
+        if (newIdx < 0 || newIdx >= products.length) return;
+        const temp = products[idx];
+        products[idx] = products[newIdx];
+        products[newIdx] = temp;
+        renderCatalog();
+        renderAdminProductList();
+        await syncCatalogToGitHub();
+    }
+
     function renderAdminProductList() {
         const wrap = document.getElementById('admin-products-list');
         if (!wrap) return;
         if (products.length === 0) { wrap.innerHTML = '<p style="font-size:12px; color:var(--subtext);">В каталоге пока нет товаров.</p>'; return; }
-        wrap.innerHTML = products.map(p => `
+        wrap.innerHTML = products.map((p, idx) => `
             <div class="cart-item">
                 <div style="display:flex; align-items:center; gap:10px;">
-                    <img src="${p.images[0]}" style="width:46px; height:46px; object-fit:contain; border:1px solid var(--border); background:#080808;">
+                    <img src="${p.images[0]}" style="width:46px; height:46px; object-fit:contain; border:1px solid var(--border); background:var(--card-img-bg);">
                     <div>
-                        <div style="font-size:10px; color:var(--subtext); text-transform:uppercase;">${p.gender} • ${p.brand}</div>
-                        <div style="font-weight:700; font-size:13px;">${p.title}</div>
-                        <div style="font-weight:800; font-size:12px; color:var(--accent);">${formatMoney(p.priceUSD)}</div>
+                        <div style="font-size:10px; color:var(--subtext);">#${idx + 1} • Код: ${p.code || ('S-' + p.id)}</div>
+                        <div style="font-weight:700; font-size:12px;">${p.title}</div>
+                        <div style="font-weight:800; font-size:12px;">${formatMoney(p.priceUSD)}</div>
                     </div>
                 </div>
-                <div style="display:flex; gap:6px;">
-                    <button class="adm-mini-btn" onclick="startEditProduct(${p.id})">✏️</button>
-                    <button class="adm-mini-btn del" onclick="deleteProduct(${p.id})">🗑</button>
+                <div style="display:flex; gap:4px;">
+                    <button class="adm-mini-btn" style="padding:5px 7px;" onclick="moveProductOrder(${p.id}, -1)">▲</button>
+                    <button class="adm-mini-btn" style="padding:5px 7px;" onclick="moveProductOrder(${p.id}, 1)">▼</button>
+                    <button class="adm-mini-btn" style="padding:5px 7px;" onclick="startEditProduct(${p.id})">✏️</button>
+                    <button class="adm-mini-btn del" style="padding:5px 7px;" onclick="deleteProduct(${p.id})">🗑</button>
                 </div>
             </div>
         `).join('');
@@ -948,13 +1390,16 @@
         const p = products.find(x => x.id === id);
         if (!p) return;
         openPage('admin');
-        document.getElementById('form-mode-title').innerText = `✏️ Редактирование: ${p.title}`;
+        document.getElementById('form-mode-title').innerText = `✏️ Изменить: ${p.title}`;
         document.getElementById('cancel-edit-btn').style.display = 'inline-block';
         document.getElementById('save-prod-btn').innerText = '💾 Сохранить изменения';
         document.getElementById('adm-edit-id').value = p.id;
-        document.getElementById('adm-gender').value = p.gender || customGenderOrder[1] || 'Мужские';
         document.getElementById('adm-brand').value = p.brand || '';
+        document.getElementById('adm-code').value = p.code || '';
         document.getElementById('adm-title').value = p.title || '';
+
+        renderAdminCategorySelects(p.attrs || { gender: p.gender });
+
         const cur = document.getElementById('adm-cur').value;
         document.getElementById('adm-price').value = Math.round(p.priceUSD * rates[cur].rate);
         const hasDisc = p.oldPriceUSD && p.oldPriceUSD > p.priceUSD;
@@ -967,7 +1412,9 @@
         uploadedProductPhotos = [...(normVars[0].images || p.images || [])];
         renderPhotoPreviews();
 
-        uploadedVariants = normVars.slice(1);
+        tempVariantPhotos = [];
+        renderTempVariantPreviews();
+        uploadedVariants = normVars.slice(1).map(v => ({ name: v.name, images: [...v.images] }));
         renderVariantPreviews();
 
         uploadedChartPhoto = p.sizeChartImg || "";
@@ -983,9 +1430,11 @@
         document.getElementById('save-prod-btn').innerText = '✅ Сохранить и опубликовать';
         document.getElementById('adm-edit-id').value = '';
         document.getElementById('adm-brand').value = '';
+        document.getElementById('adm-code').value = '';
         document.getElementById('adm-title').value = '';
         document.getElementById('adm-price').value = '';
         document.getElementById('adm-main-color').value = '';
+        document.getElementById('var-color-name').value = '';
         document.getElementById('adm-has-discount').checked = false;
         toggleDiscountBox();
         document.getElementById('adm-desc').value = '';
@@ -993,6 +1442,7 @@
         uploadedChartPhoto = "";
         tempVariantPhotos = [];
         uploadedVariants = [];
+        renderAdminCategorySelects({});
         renderPhotoPreviews();
         renderChartPreview();
         renderTempVariantPreviews();
@@ -1026,7 +1476,12 @@
             activeGallery = normVars[0].images && normVars[0].images.length ? normVars[0].images : p.images;
         }
         document.getElementById('det-title').innerText = p.title;
-        document.getElementById('det-code').innerText = `КОД: ${p.code || 'T-' + p.id}  |  ${p.gender}`;
+        const prodCode = p.code || ('S-' + p.id);
+        const attrTags = p.attrs ? Object.values(p.attrs).filter(Boolean).join(' • ') : (p.gender || '');
+        document.getElementById('det-code').innerHTML = `
+            <span onclick="copyCodeText('${prodCode}', event)" style="cursor:pointer;">Код товара: <b>${prodCode}</b> 📋</span>
+            ${attrTags ? `<span>| ${attrTags}</span>` : ''}
+        `;
         const hasDiscount = p.oldPriceUSD && p.oldPriceUSD > p.priceUSD;
         const oldEl = document.getElementById('det-old-price');
         if (hasDiscount) { oldEl.innerText = formatMoney(p.oldPriceUSD); oldEl.style.display = 'inline'; }
@@ -1072,7 +1527,7 @@
         document.getElementById('det-color-name').innerText = activeColor;
         row.innerHTML = vars.map((v, idx) => {
             const cover = v.images[0] || '';
-            const countBadge = v.images.length > 1 ? `<span class="var-count-badge">${v.images.length} фото</span>` : '';
+            const countBadge = v.images.length > 1 ? `<span class="var-count-badge">${v.images.length}</span>` : '';
             return `
                 <div class="var-thumb ${activeColor === v.name ? 'active' : ''}" onclick="chooseColorVariant(${idx})">
                     <img src="${cover}" alt="${v.name}">
@@ -1093,13 +1548,10 @@
         renderDetailVariants();
     }
 
-    /* Полноэкранный Zoom Lightbox */
-    let currentZoom = 1;
-    let panX = 0, panY = 0;
-    let startTouchX = 0, startTouchY = 0;
-    let isDraggingImg = false;
-    let initialPinchDist = null;
-    let lastTapTime = 0;
+    /* ПОЛНОЭКРАННЫЙ ЗУМ LIGHTBOX */
+    let currentZoom = 1, panX = 0, panY = 0;
+    let startTouchX = 0, startTouchY = 0, isDraggingImg = false;
+    let initialPinchDist = null, lastTapTime = 0;
 
     function openLightbox() {
         if (!activeProduct) return;
@@ -1108,9 +1560,7 @@
         document.getElementById('lightbox-modal').style.display = 'flex';
     }
 
-    function closeLightbox() {
-        document.getElementById('lightbox-modal').style.display = 'none';
-    }
+    function closeLightbox() { document.getElementById('lightbox-modal').style.display = 'none'; }
 
     function updateLightboxImage() {
         const imgs = activeGallery && activeGallery.length ? activeGallery : activeProduct.images;
@@ -1129,8 +1579,7 @@
     function adjustZoom(delta) {
         currentZoom = Math.min(4, Math.max(1, currentZoom + delta));
         if (currentZoom === 1) { panX = 0; panY = 0; }
-        const imgEl = document.getElementById('lb-img');
-        imgEl.style.transform = `translate(${panX}px, ${panY}px) scale(${currentZoom})`;
+        document.getElementById('lb-img').style.transform = `translate(${panX}px, ${panY}px) scale(${currentZoom})`;
     }
 
     const lbStage = document.getElementById('lb-stage');
@@ -1165,24 +1614,18 @@
                 e.touches[0].clientX - e.touches[1].clientX,
                 e.touches[0].clientY - e.touches[1].clientY
             );
-            const factor = dist / initialPinchDist;
-            currentZoom = Math.min(4, Math.max(1, currentZoom * factor));
+            currentZoom = Math.min(4, Math.max(1, currentZoom * (dist / initialPinchDist)));
             initialPinchDist = dist;
             if (currentZoom === 1) { panX = 0; panY = 0; }
-            const imgEl = document.getElementById('lb-img');
-            imgEl.style.transform = `translate(${panX}px, ${panY}px) scale(${currentZoom})`;
+            document.getElementById('lb-img').style.transform = `translate(${panX}px, ${panY}px) scale(${currentZoom})`;
         } else if (e.touches.length === 1 && isDraggingImg && currentZoom > 1) {
             panX = e.touches[0].clientX - startTouchX;
             panY = e.touches[0].clientY - startTouchY;
-            const imgEl = document.getElementById('lb-img');
-            imgEl.style.transform = `translate(${panX}px, ${panY}px) scale(${currentZoom})`;
+            document.getElementById('lb-img').style.transform = `translate(${panX}px, ${panY}px) scale(${currentZoom})`;
         }
     }, { passive: true });
 
-    lbStage.addEventListener('touchend', () => {
-        isDraggingImg = false;
-        initialPinchDist = null;
-    });
+    lbStage.addEventListener('touchend', () => { isDraggingImg = false; initialPinchDist = null; });
 
     function openSizeModal() {
         if (!activeProduct) return;
@@ -1202,7 +1645,11 @@
     function addCurrentToCart() {
         if (!activeProduct) return;
         const sizeObj = (activeProduct.sizes || []).find(s => s.size === activeSize) || { size: activeSize, cm: '' };
-        cart.push({ id: activeProduct.id, title: activeProduct.title, brand: activeProduct.brand, priceUSD: activeProduct.priceUSD, size: sizeObj.size, cm: sizeObj.cm, color: activeColor });
+        cart.push({
+            id: activeProduct.id, code: activeProduct.code || ('S-' + activeProduct.id),
+            title: activeProduct.title, brand: activeProduct.brand,
+            priceUSD: activeProduct.priceUSD, size: sizeObj.size, cm: sizeObj.cm, color: activeColor
+        });
         document.getElementById('cart-count').innerText = cart.length;
         if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
         alert(`Добавлено в корзину: ${activeProduct.title} (${activeColor}, р. ${sizeObj.size})`);
@@ -1223,8 +1670,10 @@
                 <div class="cart-item">
                     <div>
                         <div style="font-weight:700; font-size:13px;">${item.title}</div>
-                        <div style="font-size:11px; color:var(--subtext); margin-top:2px;">Размер: <b style="color:var(--text);">${item.size}</b> (${item.cm}) | Цвет: <b style="color:var(--text);">${item.color}</b></div>
-                        <div style="font-weight:800; font-size:13px; margin-top:4px; color:var(--accent);">${formatMoney(item.priceUSD)}</div>
+                        <div style="font-size:11px; color:var(--subtext); margin-top:2px;">
+                            Код: ${item.code || '-'} | Размер: <b style="color:var(--text);">${item.size}</b> | Цвет: <b style="color:var(--text);">${item.color}</b>
+                        </div>
+                        <div style="font-weight:800; font-size:13px; margin-top:4px;">${formatMoney(item.priceUSD)}</div>
                     </div>
                     <span style="cursor:pointer; font-weight:bold; padding:6px; color:var(--subtext);" onclick="removeCartItem(${i})">✕</span>
                 </div>
@@ -1242,11 +1691,16 @@
         const navEl = document.getElementById('nav-' + page);
         if (navEl) navEl.classList.add('active');
         if (page === 'cart') renderCart();
-        if (page === 'admin') { renderAdminProductList(); renderCategoryManagerUI(); renderCategoryOptions(); }
+        if (page === 'admin') {
+            renderAdminFilterGroupsManager();
+            if (!document.getElementById('adm-edit-id').value) renderAdminCategorySelects({});
+            renderAdminProductList();
+        }
         window.scrollTo(0, 0);
     }
 
-    function compressImageFile(file, maxWidth = 800, quality = 0.78) {
+    /* ОПТИМИЗАЦИЯ И ЗАГРУЗКА ФОТО (БЫСТРОЕ СЖАТИЕ, ЧТОБЫ НЕ ЗАВИСАЛ GITHUB) */
+    function compressImageFile(file, maxWidth = 550, quality = 0.62) {
         return new Promise((resolve) => {
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -1265,8 +1719,8 @@
         });
     }
 
-    async function uploadImageSmart(file, maxWidth = 800) {
-        const dataUrl = await compressImageFile(file, maxWidth, 0.78);
+    async function uploadImageSmart(file, maxWidth = 550) {
+        const dataUrl = await compressImageFile(file, maxWidth, 0.62);
         const imgbbKey = localStorage.getItem('cfg_imgbb_key');
         if (!imgbbKey) return dataUrl;
         try {
@@ -1291,9 +1745,9 @@
 
     async function handleMultiPhotos(input) {
         const statusEl = document.getElementById('admin-status');
-        statusEl.style.display = 'block'; statusEl.innerText = '⏳ Загрузка фото основного цвета...';
+        statusEl.style.display = 'block'; statusEl.innerText = '⏳ Обработка фото основного цвета...';
         for (const file of input.files) {
-            const url = await uploadImageSmart(file, 800);
+            const url = await uploadImageSmart(file, 550);
             uploadedProductPhotos.push(url);
             renderPhotoPreviews();
         }
@@ -1308,12 +1762,11 @@
 
     async function handleChartPhoto(input) {
         if (input.files[0]) {
-            uploadedChartPhoto = await uploadImageSmart(input.files[0], 800);
+            uploadedChartPhoto = await uploadImageSmart(input.files[0], 550);
             renderChartPreview();
         }
     }
 
-    /* Мульти-фото для каждого дополнительного цвета */
     function renderTempVariantPreviews() {
         const wrap = document.getElementById('var-temp-preview');
         wrap.innerHTML = tempVariantPhotos.map((url, idx) => `
@@ -1323,9 +1776,9 @@
 
     async function handleVariantDraftFiles(input) {
         const statusEl = document.getElementById('admin-status');
-        statusEl.style.display = 'block'; statusEl.innerText = '⏳ Загрузка фото для цвета...';
+        statusEl.style.display = 'block'; statusEl.innerText = '⏳ Обработка фото дополнительного цвета...';
         for (const file of input.files) {
-            const url = await uploadImageSmart(file, 800);
+            const url = await uploadImageSmart(file, 550);
             tempVariantPhotos.push(url);
             renderTempVariantPreviews();
         }
@@ -1337,9 +1790,9 @@
         document.getElementById('var-draft-list').innerHTML = uploadedVariants.map((v, idx) => {
             const imgs = v.images || (v.img ? [v.img] : []);
             return `
-                <div class="preview-item" style="width:74px; height:auto; text-align:center; font-size:9px; padding:3px;">
+                <div class="preview-item" style="width:78px; height:auto; text-align:center; font-size:9px; padding:3px;">
                     <img src="${imgs[0] || ''}" style="height:48px; object-fit:contain;">
-                    <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:2px; color:var(--text);">${v.name} (${imgs.length})</div>
+                    <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:2px;">${v.name} (${imgs.length})</div>
                     <div class="preview-del" onclick="uploadedVariants.splice(${idx},1); renderVariantPreviews();">✕</div>
                 </div>
             `;
@@ -1362,8 +1815,8 @@
     async function saveNewProduct() {
         if (!isOwner) return;
         const editId = document.getElementById('adm-edit-id').value;
-        const gender = document.getElementById('adm-gender').value;
         const brand = document.getElementById('adm-brand').value.trim() || 'TÉNÉBRIS';
+        const customCode = document.getElementById('adm-code').value.trim();
         const title = document.getElementById('adm-title').value.trim();
         const mainColor = document.getElementById('adm-main-color').value.trim() || 'Black';
         const rawPrice = Number(document.getElementById('adm-price').value);
@@ -1374,6 +1827,27 @@
         const desc = document.getElementById('adm-desc').value.trim();
 
         if (!title || !rawPrice) { alert('Заполните название модели и цену!'); return; }
+
+        // Если владелец выбрал фото для нового цвета, но забыл нажать "+ Прикрепить этот цвет", прикрепляем автоматически!
+        const pendingVarName = document.getElementById('var-color-name').value.trim();
+        if (tempVariantPhotos.length > 0) {
+            uploadedVariants.push({
+                name: pendingVarName || `Цвет ${uploadedVariants.length + 2}`,
+                images: [...tempVariantPhotos]
+            });
+            document.getElementById('var-color-name').value = '';
+            tempVariantPhotos = [];
+            renderTempVariantPreviews();
+            renderVariantPreviews();
+        }
+
+        // Собираем значения всех категорий фильтра
+        const attrs = {};
+        filterGroups.forEach(grp => {
+            const el = document.getElementById(`adm-attr-${grp.id}`);
+            if (el && el.value) attrs[grp.id] = el.value;
+        });
+        const primaryGender = attrs[filterGroups[0]?.id] || filterGroups[0]?.options?.[0] || 'Мужчинам';
 
         const priceUSD = +(rawPrice / rates[inputCur].rate).toFixed(2);
         const oldPriceUSD = (hasDiscount && rawOldPrice > 0) ? +(rawOldPrice / rates[inputCur].rate).toFixed(2) : 0;
@@ -1391,39 +1865,53 @@
         ];
 
         const btn = document.getElementById('save-prod-btn');
-        btn.disabled = true; btn.innerText = '⏳ Публикация...';
+        btn.disabled = true;
+        btn.innerText = '⏳ Сохранение...';
 
-        if (editId) {
-            const idx = products.findIndex(x => String(x.id) === String(editId));
-            if (idx !== -1) {
-                products[idx] = {
-                    ...products[idx], gender, brand, title, mainColor, priceUSD, oldPriceUSD, images,
+        try {
+            if (editId) {
+                const idx = products.findIndex(x => String(x.id) === String(editId));
+                if (idx !== -1) {
+                    products[idx] = {
+                        ...products[idx],
+                        code: customCode || products[idx].code || ('S-' + products[idx].id),
+                        gender: primaryGender,
+                        attrs,
+                        brand, title, mainColor, priceUSD, oldPriceUSD, images,
+                        sizes: parsedSizes.length ? parsedSizes : [{ size: "41", cm: "26 см" }],
+                        sizeChartImg: uploadedChartPhoto,
+                        variants: fullVariants,
+                        desc
+                    };
+                }
+            } else {
+                const newId = Date.now();
+                const newProd = {
+                    id: newId,
+                    code: customCode || ('S-' + Math.floor(1000000 + Math.random() * 9000000)),
+                    gender: primaryGender,
+                    attrs,
+                    brand, title, mainColor, priceUSD, oldPriceUSD, images,
                     sizes: parsedSizes.length ? parsedSizes : [{ size: "41", cm: "26 см" }],
                     sizeChartImg: uploadedChartPhoto,
                     variants: fullVariants,
                     desc
                 };
+                products.unshift(newProd);
             }
-        } else {
-            const newProd = {
-                id: Date.now(),
-                code: 'T-' + Math.floor(100000 + Math.random() * 900000),
-                gender, brand, title, mainColor, priceUSD, oldPriceUSD, images,
-                sizes: parsedSizes.length ? parsedSizes : [{ size: "41", cm: "26 см" }],
-                sizeChartImg: uploadedChartPhoto,
-                variants: fullVariants,
-                desc
-            };
-            products.unshift(newProd);
+
+            renderCatalog();
+            renderAdminProductList();
+
+            const success = await syncCatalogToGitHub();
+            if (success) {
+                resetAdminForm();
+                alert('✅ Изменения успешно сохранены и опубликованы!');
+            }
+        } finally {
+            btn.disabled = false;
+            btn.innerText = document.getElementById('adm-edit-id').value ? '💾 Сохранить изменения' : '✅ Сохранить и опубликовать';
         }
-
-        renderCatalog();
-        renderAdminProductList();
-
-        const success = await syncCatalogToGitHub();
-        btn.disabled = false;
-        resetAdminForm();
-        if (success) alert('✅ Опубликовано в TÉNÉBRIS!');
     }
 
     function submitOrder() {
@@ -1442,7 +1930,7 @@
             action: 'new_order',
             name, phone, delivery, city, branch, payment, currency,
             total_usd: totalUSD, total_converted: formatMoney(totalUSD),
-            items: cart.map(i => `${i.title} | Цвет: ${i.color} | Размер: ${i.size} (${i.cm})`)
+            items: cart.map(i => `[${i.code || '-'}] ${i.title} | Цвет: ${i.color} | Размер: ${i.size} (${i.cm})`)
         }));
     }
 
