@@ -6,7 +6,7 @@
     <title>TÉNÉBRIS</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* СВЕТЛАЯ ТЕМА (КАК НА ПРИМЕРЕ SNEAKERS.COM.UA - БЕЗ РАМОК) */
+        /* СВЕТЛАЯ ТЕМА (БЕЗ РАМОК) */
         :root, body[data-theme="light"] {
             --bg: #ffffff;
             --surface: #f7f7f7;
@@ -19,7 +19,6 @@
             --card-img-bg: #ffffff;
             --danger: #d93025;
             --grid-line: transparent;
-            --glow: none;
         }
 
         /* ТЁМНАЯ ТЕМА TÉNÉBRIS */
@@ -35,7 +34,6 @@
             --card-img-bg: transparent;
             --danger: #ff453a;
             --grid-line: rgba(255, 255, 255, 0.02);
-            --glow: 0 0 12px rgba(255, 255, 255, 0.25);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif; }
@@ -52,7 +50,6 @@
             transition: background-color 0.2s, color 0.2s;
         }
 
-        /* ШАПКА */
         header {
             position: sticky; top: 0; z-index: 25;
             background: var(--bg);
@@ -84,7 +81,6 @@
             text-transform: uppercase; border-radius: 4px;
         }
 
-        /* ПОИСК И ПАНЕЛЬ ФИЛЬТРА */
         .top-controls {
             display: flex; gap: 8px; padding: 12px 16px 6px; align-items: center;
         }
@@ -107,7 +103,6 @@
             background: var(--text); display: none;
         }
 
-        /* БЫСТРЫЕ ТАБЫ КАТЕГОРИЙ */
         .tabs { display: flex; gap: 8px; padding: 6px 16px; overflow-x: auto; scrollbar-width: none; }
         .tabs::-webkit-scrollbar { display: none; }
         .tab-btn {
@@ -122,7 +117,7 @@
             border-bottom-color: var(--text);
         }
 
-        /* СЕТКА КАТАЛОГА (БЕЗ РАМОК, КАК НА РЕФЕРЕНСЕ) */
+        /* СЕТКА КАТАЛОГА БЕЗ РАМОК */
         .grid {
             display: grid; grid-template-columns: 1fr 1fr;
             column-gap: 14px; row-gap: 28px; padding: 12px 16px;
@@ -146,7 +141,6 @@
         }
         .card-img-wrap img {
             width: 100%; height: 100%; object-fit: contain;
-            transition: transform 0.25s ease;
         }
         .add-pill-btn {
             display: inline-flex; align-items: center; gap: 5px;
@@ -177,7 +171,6 @@
             letter-spacing: 0.8px; width: 100%; text-align: center; cursor: pointer;
         }
 
-        /* КНОПКИ ВЛАДЕЛЬЦА НА КАРТОЧКЕ (ПЕРЕМЕЩЕНИЕ + РЕДАКТИРОВАНИЕ) */
         .admin-card-actions {
             display: grid; grid-template-columns: repeat(4, 1fr);
             gap: 4px; margin-top: 6px; padding-top: 6px;
@@ -190,7 +183,6 @@
         }
         .adm-mini-btn.del { color: var(--danger); border-color: rgba(217, 48, 37, 0.4); }
 
-        /* СТРАНИЦА ТОВАРА */
         .section { display: none; }
         .section.active { display: block; }
         .detail-wrap { padding: 12px 16px; }
@@ -273,7 +265,7 @@
         }
         .desc-box { border-top: 1px solid var(--border); padding-top: 14px; font-size: 13px; line-height: 1.6; color: var(--text); white-space: pre-line; }
 
-        /* ПОЛНОЭКРАННЫЙ ФИЛЬТР (КАК НА СКРИНШОТЕ SNEAKERS.COM.UA) */
+        /* ПОЛНОЭКРАННЫЙ ФИЛЬТР */
         .filter-drawer {
             position: fixed; inset: 0; background: var(--bg);
             z-index: 90; display: none; flex-direction: column;
@@ -321,7 +313,6 @@
             background: var(--bg);
         }
 
-        /* МОДАЛКИ И ФОРМЫ */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.75);
             z-index: 80; display: none; align-items: center; justify-content: center; padding: 16px;
@@ -372,11 +363,6 @@
             padding: 10px; margin-bottom: 12px; font-size: 11px; font-weight: 700;
             border: 1px solid var(--text); background: var(--surface);
             color: var(--text); display: none;
-        }
-        .order-row-drag {
-            display: flex; justify-content: space-between; align-items: center;
-            border: 1px solid var(--border); padding: 7px 10px;
-            margin-bottom: 6px; background: var(--surface);
         }
 
         /* LIGHTBOX ZOOM */
@@ -434,7 +420,7 @@
     <div id="product-grid" class="grid"></div>
 </div>
 
-<!-- ПОЛНОЭКРАННЫЙ ФИЛЬТР (КАК НА ПРИМЕРЕ) -->
+<!-- ПОЛНОЭКРАННЫЙ ФИЛЬТР -->
 <div id="filter-drawer" class="filter-drawer">
     <div class="filter-header">
         <h3>Фильтр</h3>
@@ -452,16 +438,13 @@
             </div>
         </div>
 
-        <!-- Динамические группы фильтров, которыми управляет владелец -->
         <div id="dynamic-filter-groups"></div>
 
-        <!-- Фильтр по размерам -->
         <div class="filter-block">
             <div class="filter-block-title">Размер</div>
             <div class="filter-sizes-grid" id="filter-sizes-box"></div>
         </div>
 
-        <!-- Фильтр по брендам -->
         <div class="filter-block" style="border-bottom:none;">
             <div class="filter-block-title">Бренд</div>
             <div class="filter-check-list" id="filter-brands-box"></div>
@@ -585,6 +568,8 @@
 <div id="page-admin" class="section pad-section">
     <h2 style="margin-bottom: 12px; font-size:16px; text-transform:uppercase; letter-spacing:1px;">⚙️ Управление TÉNÉBRIS</h2>
     
+    <div id="admin-status" class="status-box"></div>
+
     <!-- Настройка облака и стиля по умолчанию -->
     <details id="cloud-settings-box" style="border:1px solid var(--border); padding:10px; margin-bottom:12px; background:var(--surface);">
         <summary style="font-size:11px; font-weight:800; cursor:pointer; text-transform:uppercase;">
@@ -600,7 +585,7 @@
                 <input type="password" id="cfg-gh-token" placeholder="ghp_xxxxxxxxxxxx">
             </div>
             <div class="form-group">
-                <label>ImgBB API Key (рекомендуется для быстрых фото)</label>
+                <label>ImgBB API Key (рекомендуется для много фото)</label>
                 <input type="password" id="cfg-imgbb-key" placeholder="Ключ с api.imgbb.com">
             </div>
             <div class="form-group">
@@ -610,37 +595,37 @@
                     <option value="dark">🌙 Чёрная (TÉNÉBRIS Cyber-Noir)</option>
                 </select>
             </div>
-            <button class="btn-black" style="padding:10px;" onclick="saveCloudConfig()">💾 Сохранить настройки</button>
+            <button type="button" class="btn-black" style="padding:10px;" onclick="saveCloudConfig()">💾 Сохранить настройки</button>
         </div>
     </details>
 
-    <!-- Управление категориями и всеми группами фильтра -->
+    <!-- Управление категориями и всеми группами фильтра + КНОПКА СОХРАНИТЬ -->
     <details style="border:1px solid var(--border); padding:10px; margin-bottom:16px; background:var(--surface);">
         <summary style="font-size:11px; font-weight:800; cursor:pointer; text-transform:uppercase;">
             🎛 Настройка фильтра и категорий (добавить / убрать)
         </summary>
         <div style="margin-top:12px;">
             <p style="font-size:11px; color:var(--subtext); margin-bottom:10px;">
-                Ты можешь редактировать пункты внутри любой категории фильтра (Пол, Категория, Тип, Материал, Сезон) или создать новую группу.
+                Добавляй или убирай пункты в любой категории фильтра, а затем нажми кнопку сохранения внизу этого блока.
             </p>
             <div id="admin-filter-groups-manager"></div>
-            <div style="border-top:1px dashed var(--border); padding-top:10px; margin-top:10px; display:flex; gap:6px;">
+            <div style="border-top:1px dashed var(--border); padding-top:10px; margin-top:10px; display:flex; gap:6px; margin-bottom:12px;">
                 <input type="text" id="new-filter-group-title" placeholder="Новая группа (напр. Коллекция)" style="flex:1; padding:8px; font-size:12px; border:1px solid var(--border); background:var(--bg); color:var(--text);">
-                <button class="btn-black" style="width:auto; padding:8px 12px;" onclick="addFilterGroup()">+ Группа</button>
+                <button type="button" class="btn-outline" style="width:auto; padding:8px 12px;" onclick="addFilterGroup()">+ Группа</button>
             </div>
+            <button type="button" id="save-filters-btn" class="btn-black" style="padding:11px;" onclick="saveAllFilterChanges()">
+                💾 Сохранить изменения фильтров для всех
+            </button>
         </div>
     </details>
-
-    <div id="admin-status" class="status-box"></div>
     
     <!-- ФОРМА ТОВАРА -->
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
         <h3 id="form-mode-title" style="font-size:14px; text-transform:uppercase;">➕ Новый товар</h3>
-        <button id="cancel-edit-btn" class="adm-mini-btn" style="display:none; padding:5px 10px;" onclick="resetAdminForm()">✕ Отменить</button>
+        <button type="button" id="cancel-edit-btn" class="adm-mini-btn" style="display:none; padding:5px 10px;" onclick="resetAdminForm()">✕ Отменить</button>
     </div>
     <input type="hidden" id="adm-edit-id" value="">
 
-    <!-- Динамические селекты категорий фильтра -->
     <div id="adm-dynamic-category-selects" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;"></div>
 
     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
@@ -698,12 +683,12 @@
 
     <div style="border:1px solid var(--border); padding:12px; margin-bottom:14px; background:var(--surface);">
         <label style="font-size:11px; font-weight:800; display:block; margin-bottom:8px; text-transform:uppercase;">
-            🎨 Дополнительные цвета (можно несколько фото на каждый цвет)
+            🎨 Дополнительные цвета (несколько фото на каждый цвет)
         </label>
         <input type="text" id="var-color-name" placeholder="Название цвета (напр. White / Grey)" style="margin-bottom:8px; width:100%; padding:9px; background:var(--bg); border:1px solid var(--border); color:var(--text);">
         <input type="file" id="var-color-files" accept="image/*" multiple onchange="handleVariantDraftFiles(this)" style="margin-bottom:8px; width:100%; font-size:12px;">
         <div id="var-temp-preview" class="preview-strip" style="margin-bottom:8px;"></div>
-        <button type="button" class="btn-outline" style="padding:8px;" onclick="addVariantDraft()">+ Прикрепить этот цвет</button>
+        <button type="button" class="btn-outline" style="padding:8px;" onclick="addVariantDraft()">+ Прикрепить этот цвет в список</button>
         <div id="var-draft-list" class="preview-strip" style="margin-top:10px;"></div>
     </div>
 
@@ -721,7 +706,7 @@
         <textarea id="adm-desc" rows="3" placeholder="Материалы, сезон, особенности модели..."></textarea>
     </div>
 
-    <button id="save-prod-btn" class="btn-black" onclick="saveNewProduct()">✅ Сохранить и опубликовать</button>
+    <button type="button" id="save-prod-btn" class="btn-black" onclick="saveNewProduct()">✅ Сохранить и опубликовать</button>
 
     <h3 style="margin: 24px 0 10px; font-size:14px; text-transform:uppercase; border-top:1px solid var(--border); padding-top:16px;">
         📦 Порядок и управление товарами (▲ / ▼)
@@ -743,11 +728,10 @@
     const tgUser = (tg.initDataUnsafe?.user?.username || "").toLowerCase();
     let isOwner = (urlParams.get('admin') === '1') || (tgUser === 'endry_sit');
 
-    /* СТАНДАРТНЫЕ ГРУППЫ ФИЛЬТРА (КАК НА СКРИНШОТЕ SNEAKERS.COM.UA) */
     const defaultFilterGroups = [
-        { id: 'gender', title: 'Пол', options: ['Мужчинам', 'Женщинам', 'Унисекс'] },
+        { id: 'gender', title: 'Пол', options: ['Мужские', 'Женские', 'Унисекс'] },
         { id: 'category', title: 'Категория', options: ['Обувь', 'Одежда', 'Аксессуары'] },
-        { id: 'type', title: 'Тип', options: ['Кроссовки', 'Ботинки', 'Кеды', 'Вьетнамки и Шлепанцы'] },
+        { id: 'type', title: 'Тип', options: ['Кроссовки', 'Ботинки', 'Кеды', 'Шлепанцы'] },
         { id: 'material', title: 'Материал', options: ['Кожа', 'Замша', 'Текстиль', 'Нубук', 'Gore-Tex'] },
         { id: 'season', title: 'Сезон', options: ['Весна-Лето', 'Демисезон', 'Зима'] }
     ];
@@ -755,15 +739,24 @@
     let filterGroups = JSON.parse(JSON.stringify(defaultFilterGroups));
     let defaultStoreTheme = localStorage.getItem('tenebris_theme') || 'light';
 
-    /* ТЕМА (БЕЛАЯ / ЧЁРНАЯ) */
+    /* БЕЗОПАСНОЕ СОХРАНЕНИЕ В LOCALSTORAGE (ЧТОБЫ НЕ ЛОМАЛИСЬ КНОПКИ ПРИ ПЕРЕПОЛНЕНИИ ПАМЯТИ) */
+    function safeSetLocal(key, val) {
+        try {
+            localStorage.setItem(key, val);
+        } catch (e) {
+            console.warn('LocalStorage quota exceeded, skipping local cache:', e);
+        }
+    }
+
     function applyTheme(theme) {
         document.body.setAttribute('data-theme', theme);
         document.getElementById('theme-toggle-btn').innerText = theme === 'dark' ? '☀️' : '🌙';
-        localStorage.setItem('tenebris_theme', theme);
+        safeSetLocal('tenebris_theme', theme);
     }
 
     function toggleTheme() {
         const current = document.body.getAttribute('data-theme') || 'light';
+        safeSetLocal('user_switched_theme', '1');
         applyTheme(current === 'dark' ? 'light' : 'dark');
     }
 
@@ -792,9 +785,9 @@
     }
 
     async function saveCloudConfig() {
-        localStorage.setItem('cfg_gh_repo', document.getElementById('cfg-repo').value.trim());
-        localStorage.setItem('cfg_gh_token', document.getElementById('cfg-gh-token').value.trim());
-        localStorage.setItem('cfg_imgbb_key', document.getElementById('cfg-imgbb-key').value.trim());
+        safeSetLocal('cfg_gh_repo', document.getElementById('cfg-repo').value.trim());
+        safeSetLocal('cfg_gh_token', document.getElementById('cfg-gh-token').value.trim());
+        safeSetLocal('cfg_imgbb_key', document.getElementById('cfg-imgbb-key').value.trim());
         defaultStoreTheme = document.getElementById('cfg-default-theme').value;
         applyTheme(defaultStoreTheme);
         document.getElementById('cloud-settings-box').open = false;
@@ -835,9 +828,9 @@
     let products = [];
     let selectedQuickTab = 'ALL';
 
-    /* СОСТОЯНИЕ ФИЛЬТРА */
+    /* ГАРАНТИРОВАННО ЧИСТЫЕ ФИЛЬТРЫ ПРИ ВХОДЕ В МАГАЗИН */
     let currentSort = 'popular';
-    let activeFilterSelections = {}; // { groupId: Set of selected values }
+    let activeFilterSelections = {};
     let activeFilterSizes = new Set();
     let activeFilterBrands = new Set();
 
@@ -854,10 +847,13 @@
     let uploadedVariants = [];
 
     function applyCloudPayload(cloudData) {
+        if (!cloudData) return;
         if (Array.isArray(cloudData)) {
             products = cloudData;
-        } else if (cloudData && typeof cloudData === 'object') {
-            if (Array.isArray(cloudData.products)) products = cloudData.products;
+        } else if (typeof cloudData === 'object') {
+            if (Array.isArray(cloudData.products)) {
+                products = cloudData.products;
+            }
             if (Array.isArray(cloudData.filterGroups) && cloudData.filterGroups.length > 0) {
                 filterGroups = cloudData.filterGroups;
             } else if (Array.isArray(cloudData.categories) && cloudData.categories.length > 0) {
@@ -869,9 +865,36 @@
                 applyTheme(defaultStoreTheme);
             }
         }
+        // Авто-добавление категорий существующих товаров в табы, чтобы ни один товар не скрывался
+        if (filterGroups.length > 0 && Array.isArray(products)) {
+            const firstGrpId = filterGroups[0].id;
+            products.forEach(p => {
+                const catVal = (p.attrs && p.attrs[firstGrpId]) || p.gender;
+                if (catVal && !filterGroups[0].options.includes(catVal)) {
+                    filterGroups[0].options.push(catVal);
+                }
+            });
+        }
     }
 
     async function loadSharedCatalog() {
+        // Сбрасываем любые фильтры при старте, чтобы все товары были сразу видны!
+        selectedQuickTab = 'ALL';
+        currentSort = 'popular';
+        activeFilterSelections = {};
+        activeFilterSizes.clear();
+        activeFilterBrands.clear();
+
+        // 1. Сначала мгновенно показываем локальный кэш (если есть), чтобы экран не был пустым
+        try {
+            const cached = localStorage.getItem('tenebris_catalog_v3') || localStorage.getItem('tenebris_catalog_v2') || localStorage.getItem('tenebris_catalog_v1');
+            if (cached) {
+                applyCloudPayload(JSON.parse(cached));
+                renderCatalog();
+            }
+        } catch (e) {}
+
+        // 2. Затем загружаем свежую базу с GitHub
         const repo = detectGitHubRepo();
         let loadedFromCloud = false;
 
@@ -882,9 +905,11 @@
                 cache: 'no-store'
             });
             if (res && res.ok) {
-                const cloudData = await res.json();
-                applyCloudPayload(cloudData);
-                loadedFromCloud = true;
+                const textData = await res.text();
+                if (textData && textData.trim()) {
+                    applyCloudPayload(JSON.parse(textData));
+                    loadedFromCloud = true;
+                }
             }
         } catch (e) {}
 
@@ -892,25 +917,26 @@
             try {
                 const rawRes = await fetch(`https://raw.githubusercontent.com/${repo}/main/products.json?t=${Date.now()}`, { cache: 'no-store' });
                 if (rawRes && rawRes.ok) {
-                    const cloudData = await rawRes.json();
-                    applyCloudPayload(cloudData);
-                    loadedFromCloud = true;
+                    const textData = await rawRes.text();
+                    if (textData && textData.trim()) {
+                        applyCloudPayload(JSON.parse(textData));
+                        loadedFromCloud = true;
+                    }
                 }
             } catch (e) {}
         }
 
-        if (!loadedFromCloud) {
-            const local = localStorage.getItem('tenebris_catalog_v2');
-            if (local) applyCloudPayload(JSON.parse(local));
-        } else {
-            localStorage.setItem('tenebris_catalog_v2', JSON.stringify({
+        if (loadedFromCloud) {
+            safeSetLocal('tenebris_catalog_v3', JSON.stringify({
                 filterGroups,
                 defaultTheme: defaultStoreTheme,
                 products
             }));
         }
 
+        selectedQuickTab = 'ALL';
         renderCatalog();
+
         if (isOwner) {
             renderAdminFilterGroupsManager();
             renderAdminCategorySelects();
@@ -927,10 +953,10 @@
             defaultTheme: defaultStoreTheme,
             products
         };
-        localStorage.setItem('tenebris_catalog_v2', JSON.stringify(payloadData));
+        safeSetLocal('tenebris_catalog_v3', JSON.stringify(payloadData));
 
         if (!token) {
-            alert('⚠️ Внимание: не указан GitHub Token в настройках админки! Изменения сохранены только локально.');
+            alert('⚠️ Внимание: не указан GitHub Token в настройках админки! Откройте блок «Ключи GitHub» и сохраните токен.');
             return false;
         }
 
@@ -952,13 +978,12 @@
             }
         } catch (e) {}
 
-        const contentStr = JSON.stringify(payloadData, null, 2);
+        const contentStr = JSON.stringify(payloadData);
         const contentBase64 = btoa(unescape(encodeURIComponent(contentStr)));
 
-        // Проверка размера для GitHub Contents API (лимит 1 МБ)
         if (contentBase64.length > 1350000) {
-            statusEl.innerText = '⚠️ Слишком много тяжелых фото без ключа ImgBB.';
-            alert('⚠️ Размер базы превысил лимит GitHub (1 МБ), так как фото сохранены без ключа ImgBB. Добавьте бесплатный ключ api.imgbb.com в настройках админки или уменьшите количество фото.');
+            statusEl.innerText = '⚠️ Превышен лимит GitHub (1 МБ) из-за фото без ключа ImgBB.';
+            alert('⚠️ Слишком много тяжелых фотографий без ключа ImgBB (превышен лимит GitHub 1 МБ). Вставьте бесплатный ключ api.imgbb.com в настройках админки или уменьшите число фото.');
             return false;
         }
 
@@ -980,8 +1005,8 @@
             });
 
             if (putRes.ok) {
-                statusEl.innerText = '✅ Синхронизировано! Изменения видны на всех аккаунтах.';
-                setTimeout(() => { statusEl.style.display = 'none'; }, 3500);
+                statusEl.innerText = '✅ Успешно сохранено! Изменения видны на всех аккаунтах.';
+                setTimeout(() => { statusEl.style.display = 'none'; }, 4000);
                 return true;
             } else {
                 const errJson = await putRes.json().catch(() => ({}));
@@ -990,8 +1015,8 @@
                 return false;
             }
         } catch (netErr) {
-            statusEl.innerText = '⚠️ Ошибка сети при отправке на GitHub.';
-            alert('⚠️ Ошибка соединения при сохранении. Проверьте интернет или добавьте ключ ImgBB для сжатия фото.');
+            statusEl.innerText = '⚠️ Ошибка сети при сохранении.';
+            alert('⚠️ Ошибка сети при отправке данных на GitHub: ' + netErr.message);
             return false;
         }
     }
@@ -1010,7 +1035,7 @@
         if (isOwner) renderAdminProductList();
     }
 
-    /* УПРАВЛЕНИЕ ГРУППАМИ ФИЛЬТРА В АДМИНКЕ */
+    /* УПРАВЛЕНИЕ ГРУППАМИ ФИЛЬТРА В АДМИНКЕ + КНОПКА СОХРАНИТЬ */
     function renderAdminFilterGroupsManager() {
         const wrap = document.getElementById('admin-filter-groups-manager');
         if (!wrap) return;
@@ -1018,7 +1043,7 @@
             <div style="border:1px solid var(--border); padding:8px; margin-bottom:8px; background:var(--bg);">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                     <strong style="font-size:11px; text-transform:uppercase;">${grp.title}</strong>
-                    ${gIdx > 0 ? `<button class="adm-mini-btn del" style="padding:2px 6px;" onclick="removeFilterGroup(${gIdx})">Удалить группу</button>` : ''}
+                    ${gIdx > 0 ? `<button type="button" class="adm-mini-btn del" style="padding:2px 6px;" onclick="removeFilterGroup(${gIdx})">Удалить группу</button>` : ''}
                 </div>
                 <div style="display:flex; gap:5px; flex-wrap:wrap; margin-bottom:6px;">
                     ${grp.options.map((opt, oIdx) => `
@@ -1030,13 +1055,13 @@
                 </div>
                 <div style="display:flex; gap:6px;">
                     <input type="text" id="new-opt-${gIdx}" placeholder="Новый пункт..." style="flex:1; padding:6px; font-size:11px; border:1px solid var(--border); background:var(--surface); color:var(--text);">
-                    <button class="adm-mini-btn" style="padding:6px 10px;" onclick="addFilterOption(${gIdx})">+ Добавить</button>
+                    <button type="button" class="adm-mini-btn" style="padding:6px 10px;" onclick="addFilterOption(${gIdx})">+ Добавить</button>
                 </div>
             </div>
         `).join('');
     }
 
-    async function addFilterOption(gIdx) {
+    function addFilterOption(gIdx) {
         const inp = document.getElementById(`new-opt-${gIdx}`);
         const val = inp.value.trim();
         if (!val) return;
@@ -1046,11 +1071,10 @@
             renderAdminFilterGroupsManager();
             renderAdminCategorySelects();
             renderCatalog();
-            await syncCatalogToGitHub();
         }
     }
 
-    async function removeFilterOption(gIdx, oIdx) {
+    function removeFilterOption(gIdx, oIdx) {
         if (gIdx === 0 && filterGroups[0].options.length <= 1) {
             alert('В первой группе должен остаться хотя бы 1 пункт!');
             return;
@@ -1059,10 +1083,9 @@
         renderAdminFilterGroupsManager();
         renderAdminCategorySelects();
         renderCatalog();
-        await syncCatalogToGitHub();
     }
 
-    async function addFilterGroup() {
+    function addFilterGroup() {
         const inp = document.getElementById('new-filter-group-title');
         const title = inp.value.trim();
         if (!title) return;
@@ -1071,15 +1094,29 @@
         inp.value = '';
         renderAdminFilterGroupsManager();
         renderAdminCategorySelects();
-        await syncCatalogToGitHub();
     }
 
-    async function removeFilterGroup(gIdx) {
+    function removeFilterGroup(gIdx) {
         if (!confirm(`Удалить группу фильтра «${filterGroups[gIdx].title}»?`)) return;
         filterGroups.splice(gIdx, 1);
         renderAdminFilterGroupsManager();
         renderAdminCategorySelects();
-        await syncCatalogToGitHub();
+    }
+
+    async function saveAllFilterChanges() {
+        const btn = document.getElementById('save-filters-btn');
+        btn.disabled = true;
+        btn.innerText = '⏳ Сохранение фильтров...';
+        try {
+            renderAdminFilterGroupsManager();
+            renderAdminCategorySelects();
+            renderCatalog();
+            const ok = await syncCatalogToGitHub();
+            if (ok) alert('✅ Фильтры и категории успешно сохранены для всех пользователей!');
+        } finally {
+            btn.disabled = false;
+            btn.innerText = '💾 Сохранить изменения фильтров для всех';
+        }
     }
 
     function renderAdminCategorySelects(productAttrs = {}) {
@@ -1135,14 +1172,12 @@
             `;
         }).join('');
 
-        // Все размеры из товаров
-        const allSizes = [...new Set(products.flatMap(p => (p.sizes || []).map(s => s.size)))].sort((a, b) => parseFloat(a) - parseFloat(b));
+        const allSizes = [...new Set(products.flatMap(p => (p.sizes || []).map(s => String(s.size))))].sort((a, b) => parseFloat(a) - parseFloat(b));
         const szList = allSizes.length ? allSizes : ['36', '37', '38', '39', '40', '41', '42', '43', '44', '45'];
         document.getElementById('filter-sizes-box').innerHTML = szList.map(sz => `
             <div class="filter-sz-item ${activeFilterSizes.has(sz) ? 'active' : ''}" onclick="toggleFilterSize('${sz}')">${sz}</div>
         `).join('');
 
-        // Все бренды
         const allBrands = [...new Set(products.map(p => p.brand).filter(Boolean))];
         document.getElementById('filter-brands-box').innerHTML = allBrands.map(b => `
             <label class="filter-check-item">
@@ -1186,10 +1221,12 @@
         closeFilterDrawer();
     }
 
-    /* БЫСТРЫЕ ТАБЫ И РЕНДЕР КАТАЛОГА */
     function renderQuickTabs() {
         const wrap = document.getElementById('gender-tabs');
         const firstGroup = filterGroups[0] || { options: [] };
+        if (selectedQuickTab !== 'ALL' && !firstGroup.options.includes(selectedQuickTab)) {
+            selectedQuickTab = 'ALL';
+        }
         const tabs = ['ALL', ...firstGroup.options];
         wrap.innerHTML = tabs.map(t => `
             <button class="tab-btn ${selectedQuickTab === t ? 'active' : ''}" onclick="setQuickTab('${t}')">
@@ -1211,20 +1248,20 @@
 
     function renderCatalog() {
         renderQuickTabs();
-        const q = document.getElementById('search-input').value.toLowerCase().trim();
+        const q = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
         const grid = document.getElementById('product-grid');
         grid.innerHTML = '';
 
-        // Проверка активности фильтров для индикатора
         const hasActiveFilters = currentSort !== 'popular' ||
             activeFilterSizes.size > 0 ||
             activeFilterBrands.size > 0 ||
-            Object.values(activeFilterSelections).some(set => set && set.size > 0);
+            Object.values(activeFilterSelections).some(set => set instanceof Set && set.size > 0);
         document.getElementById('filter-dot').style.display = hasActiveFilters ? 'inline-block' : 'none';
 
         const firstGroupId = filterGroups[0]?.id || 'gender';
 
-        let filtered = products.filter(p => {
+        let filtered = (products || []).filter(p => {
+            if (!p) return false;
             const pAttrs = p.attrs || {};
             const pMainCat = pAttrs[firstGroupId] || p.gender || '';
 
@@ -1232,17 +1269,19 @@
             if (selectedQuickTab !== 'ALL' && pMainCat !== selectedQuickTab) return false;
 
             // 2. Поиск по названию, бренду или коду товара
-            const codeStr = (p.code || 'T-' + p.id).toLowerCase();
-            const matchQ = !q ||
-                (p.title || '').toLowerCase().includes(q) ||
-                (p.brand || '').toLowerCase().includes(q) ||
-                codeStr.includes(q);
-            if (!matchQ) return false;
+            if (q) {
+                const codeStr = String(p.code || 'S-' + p.id).toLowerCase();
+                const matchQ =
+                    String(p.title || '').toLowerCase().includes(q) ||
+                    String(p.brand || '').toLowerCase().includes(q) ||
+                    codeStr.includes(q);
+                if (!matchQ) return false;
+            }
 
-            // 3. Фильтры по динамическим группам
+            // 3. Фильтры по динамическим группам (только если пользователь сам отметил галочки)
             for (const grp of filterGroups) {
                 const selSet = activeFilterSelections[grp.id];
-                if (selSet && selSet.size > 0) {
+                if (selSet instanceof Set && selSet.size > 0) {
                     const val = pAttrs[grp.id] || (grp.id === 'gender' ? p.gender : '');
                     if (!selSet.has(val)) return false;
                 }
@@ -1251,8 +1290,7 @@
             // 4. Фильтр по размеру
             if (activeFilterSizes.size > 0) {
                 const prodSizes = (p.sizes || []).map(s => String(s.size));
-                const hasSize = prodSizes.some(sz => activeFilterSizes.has(sz));
-                if (!hasSize) return false;
+                if (!prodSizes.some(sz => activeFilterSizes.has(sz))) return false;
             }
 
             // 5. Фильтр по бренду
@@ -1261,15 +1299,14 @@
             return true;
         });
 
-        // Сортировка
         if (currentSort === 'cheap') {
-            filtered = [...filtered].sort((a, b) => a.priceUSD - b.priceUSD);
+            filtered = [...filtered].sort((a, b) => Number(a.priceUSD) - Number(b.priceUSD));
         } else if (currentSort === 'expensive') {
-            filtered = [...filtered].sort((a, b) => b.priceUSD - a.priceUSD);
+            filtered = [...filtered].sort((a, b) => Number(b.priceUSD) - Number(a.priceUSD));
         }
 
         if (filtered.length === 0) {
-            grid.innerHTML = '<p style="grid-column: 1 / -1; text-align:center; padding: 45px 10px; color:var(--subtext); font-size:12px; text-transform:uppercase;">Товары не найдены</p>';
+            grid.innerHTML = '<p style="grid-column: 1 / -1; text-align:center; padding: 45px 10px; color:var(--subtext); font-size:12px; text-transform:uppercase;">В каталоге пока нет товаров</p>';
             return;
         }
 
@@ -1284,10 +1321,10 @@
 
             const adminBtnsHtml = isOwner ? `
                 <div class="admin-card-actions" onclick="event.stopPropagation()">
-                    <button class="adm-mini-btn" title="Переместить левее/выше" onclick="moveProductOrder(${p.id}, -1)">◀</button>
-                    <button class="adm-mini-btn" title="Переместить правее/ниже" onclick="moveProductOrder(${p.id}, 1)">▶</button>
-                    <button class="adm-mini-btn" onclick="startEditProduct(${p.id})">✏️</button>
-                    <button class="adm-mini-btn del" onclick="deleteProduct(${p.id})">🗑</button>
+                    <button type="button" class="adm-mini-btn" onclick="moveProductOrder(${p.id}, -1)">◀</button>
+                    <button type="button" class="adm-mini-btn" onclick="moveProductOrder(${p.id}, 1)">▶</button>
+                    <button type="button" class="adm-mini-btn" onclick="startEditProduct(${p.id})">✏️</button>
+                    <button type="button" class="adm-mini-btn del" onclick="deleteProduct(${p.id})">🗑</button>
                 </div>
             ` : '';
 
@@ -1306,7 +1343,7 @@
                     </div>
                     <div>
                         <div class="price-row">${oldHtml}<span class="cur-price">${formatMoney(p.priceUSD)}</span></div>
-                        <button class="card-buy-btn" onclick="quickBuyFromCard(${p.id}, event)">Быстрая покупка</button>
+                        <button type="button" class="card-buy-btn" onclick="quickBuyFromCard(${p.id}, event)">Быстрая покупка</button>
                         ${adminBtnsHtml}
                     </div>
                 </div>
@@ -1334,7 +1371,6 @@
         openPage('cart');
     }
 
-    /* СМЕНА ПОРЯДКА ТОВАРОВ НА ГЛАВНОМ ЭКРАНЕ */
     async function moveProductOrder(id, direction) {
         const idx = products.findIndex(x => x.id === id);
         if (idx === -1) return;
@@ -1355,7 +1391,7 @@
         wrap.innerHTML = products.map((p, idx) => `
             <div class="cart-item">
                 <div style="display:flex; align-items:center; gap:10px;">
-                    <img src="${p.images[0]}" style="width:46px; height:46px; object-fit:contain; border:1px solid var(--border); background:var(--card-img-bg);">
+                    <img src="${(p.images && p.images[0]) || ''}" style="width:46px; height:46px; object-fit:contain; border:1px solid var(--border); background:var(--card-img-bg);">
                     <div>
                         <div style="font-size:10px; color:var(--subtext);">#${idx + 1} • Код: ${p.code || ('S-' + p.id)}</div>
                         <div style="font-weight:700; font-size:12px;">${p.title}</div>
@@ -1363,10 +1399,10 @@
                     </div>
                 </div>
                 <div style="display:flex; gap:4px;">
-                    <button class="adm-mini-btn" style="padding:5px 7px;" onclick="moveProductOrder(${p.id}, -1)">▲</button>
-                    <button class="adm-mini-btn" style="padding:5px 7px;" onclick="moveProductOrder(${p.id}, 1)">▼</button>
-                    <button class="adm-mini-btn" style="padding:5px 7px;" onclick="startEditProduct(${p.id})">✏️</button>
-                    <button class="adm-mini-btn del" style="padding:5px 7px;" onclick="deleteProduct(${p.id})">🗑</button>
+                    <button type="button" class="adm-mini-btn" style="padding:5px 7px;" onclick="moveProductOrder(${p.id}, -1)">▲</button>
+                    <button type="button" class="adm-mini-btn" style="padding:5px 7px;" onclick="moveProductOrder(${p.id}, 1)">▼</button>
+                    <button type="button" class="adm-mini-btn" style="padding:5px 7px;" onclick="startEditProduct(${p.id})">✏️</button>
+                    <button type="button" class="adm-mini-btn del" style="padding:5px 7px;" onclick="deleteProduct(${p.id})">🗑</button>
                 </div>
             </div>
         `).join('');
@@ -1382,7 +1418,7 @@
         }
         return rawVars.map(v => ({
             name: v.name || "Black",
-            images: Array.isArray(v.images) && v.images.length ? v.images : (v.img ? [v.img] : p.images)
+            images: Array.isArray(v.images) && v.images.length ? v.images : (v.img ? [v.img] : (p.images || []))
         }));
     }
 
@@ -1496,7 +1532,7 @@
 
     function updateSliderView() {
         const imgs = activeGallery && activeGallery.length ? activeGallery : activeProduct.images;
-        document.getElementById('det-main-img').src = imgs[activeSlideIdx] || imgs[0];
+        document.getElementById('det-main-img').src = imgs[activeSlideIdx] || imgs[0] || '';
         const dotsWrap = document.getElementById('det-dots');
         dotsWrap.innerHTML = imgs.map((_, i) => `<span class="dot ${i === activeSlideIdx ? 'active' : ''}" onclick="setSlide(${i})"></span>`).join('');
     }
@@ -1565,7 +1601,7 @@
     function updateLightboxImage() {
         const imgs = activeGallery && activeGallery.length ? activeGallery : activeProduct.images;
         const imgEl = document.getElementById('lb-img');
-        imgEl.src = imgs[activeSlideIdx] || imgs[0];
+        imgEl.src = imgs[activeSlideIdx] || imgs[0] || '';
         imgEl.style.transform = `translate(${panX}px, ${panY}px) scale(${currentZoom})`;
         document.getElementById('lb-counter').innerText = `${activeSlideIdx + 1} / ${imgs.length}`;
     }
@@ -1699,8 +1735,8 @@
         window.scrollTo(0, 0);
     }
 
-    /* ОПТИМИЗАЦИЯ И ЗАГРУЗКА ФОТО (БЫСТРОЕ СЖАТИЕ, ЧТОБЫ НЕ ЗАВИСАЛ GITHUB) */
-    function compressImageFile(file, maxWidth = 550, quality = 0.62) {
+    /* УСИЛЕННОЕ СЖАТИЕ ФОТО (480px, 0.55) ЧТОБЫ КАРТИНКИ МГНОВЕННО УЛЕТАЛИ НА GITHUB БЕЗ ОШИБОК */
+    function compressImageFile(file, maxWidth = 480, quality = 0.55) {
         return new Promise((resolve) => {
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -1708,19 +1744,23 @@
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
                     const scale = Math.min(1, maxWidth / img.width);
-                    canvas.width = img.width * scale; canvas.height = img.height * scale;
+                    canvas.width = Math.round(img.width * scale);
+                    canvas.height = Math.round(img.height * scale);
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                     resolve(canvas.toDataURL('image/jpeg', quality));
                 };
+                img.onerror = () => resolve('');
                 img.src = e.target.result;
             };
+            reader.onerror = () => resolve('');
             reader.readAsDataURL(file);
         });
     }
 
-    async function uploadImageSmart(file, maxWidth = 550) {
-        const dataUrl = await compressImageFile(file, maxWidth, 0.62);
+    async function uploadImageSmart(file, maxWidth = 480) {
+        const dataUrl = await compressImageFile(file, maxWidth, 0.55);
+        if (!dataUrl) return '';
         const imgbbKey = localStorage.getItem('cfg_imgbb_key');
         if (!imgbbKey) return dataUrl;
         try {
@@ -1745,10 +1785,10 @@
 
     async function handleMultiPhotos(input) {
         const statusEl = document.getElementById('admin-status');
-        statusEl.style.display = 'block'; statusEl.innerText = '⏳ Обработка фото основного цвета...';
+        statusEl.style.display = 'block'; statusEl.innerText = '⏳ Сжатие фото основного цвета...';
         for (const file of input.files) {
-            const url = await uploadImageSmart(file, 550);
-            uploadedProductPhotos.push(url);
+            const url = await uploadImageSmart(file, 480);
+            if (url) uploadedProductPhotos.push(url);
             renderPhotoPreviews();
         }
         statusEl.style.display = 'none'; input.value = '';
@@ -1762,7 +1802,7 @@
 
     async function handleChartPhoto(input) {
         if (input.files[0]) {
-            uploadedChartPhoto = await uploadImageSmart(input.files[0], 550);
+            uploadedChartPhoto = await uploadImageSmart(input.files[0], 480);
             renderChartPreview();
         }
     }
@@ -1776,10 +1816,10 @@
 
     async function handleVariantDraftFiles(input) {
         const statusEl = document.getElementById('admin-status');
-        statusEl.style.display = 'block'; statusEl.innerText = '⏳ Обработка фото дополнительного цвета...';
+        statusEl.style.display = 'block'; statusEl.innerText = '⏳ Сжатие фото дополнительного цвета...';
         for (const file of input.files) {
-            const url = await uploadImageSmart(file, 550);
-            tempVariantPhotos.push(url);
+            const url = await uploadImageSmart(file, 480);
+            if (url) tempVariantPhotos.push(url);
             renderTempVariantPreviews();
         }
         statusEl.style.display = 'none';
@@ -1801,11 +1841,18 @@
 
     function addVariantDraft() {
         const name = document.getElementById('var-color-name').value.trim();
-        if (!name || tempVariantPhotos.length === 0) {
-            alert('Укажите название цвета и выберите хотя бы 1 фото!');
+        if (!name && tempVariantPhotos.length === 0) {
+            alert('Укажите название цвета и выберите фото!');
             return;
         }
-        uploadedVariants.push({ name, images: [...tempVariantPhotos] });
+        if (tempVariantPhotos.length === 0) {
+            alert('Выберите хотя бы 1 фото для этого цвета!');
+            return;
+        }
+        uploadedVariants.push({
+            name: name || `Цвет ${uploadedVariants.length + 2}`,
+            images: [...tempVariantPhotos]
+        });
         document.getElementById('var-color-name').value = '';
         tempVariantPhotos = [];
         renderTempVariantPreviews();
@@ -1814,61 +1861,64 @@
 
     async function saveNewProduct() {
         if (!isOwner) return;
-        const editId = document.getElementById('adm-edit-id').value;
-        const brand = document.getElementById('adm-brand').value.trim() || 'TÉNÉBRIS';
-        const customCode = document.getElementById('adm-code').value.trim();
-        const title = document.getElementById('adm-title').value.trim();
-        const mainColor = document.getElementById('adm-main-color').value.trim() || 'Black';
-        const rawPrice = Number(document.getElementById('adm-price').value);
-        const hasDiscount = document.getElementById('adm-has-discount').checked;
-        const rawOldPrice = hasDiscount ? Number(document.getElementById('adm-old-price').value) : 0;
-        const inputCur = document.getElementById('adm-cur').value;
-        const rawSizes = document.getElementById('adm-sizes').value.trim();
-        const desc = document.getElementById('adm-desc').value.trim();
-
-        if (!title || !rawPrice) { alert('Заполните название модели и цену!'); return; }
-
-        // Если владелец выбрал фото для нового цвета, но забыл нажать "+ Прикрепить этот цвет", прикрепляем автоматически!
-        const pendingVarName = document.getElementById('var-color-name').value.trim();
-        if (tempVariantPhotos.length > 0) {
-            uploadedVariants.push({
-                name: pendingVarName || `Цвет ${uploadedVariants.length + 2}`,
-                images: [...tempVariantPhotos]
-            });
-            document.getElementById('var-color-name').value = '';
-            tempVariantPhotos = [];
-            renderTempVariantPreviews();
-            renderVariantPreviews();
-        }
-
-        // Собираем значения всех категорий фильтра
-        const attrs = {};
-        filterGroups.forEach(grp => {
-            const el = document.getElementById(`adm-attr-${grp.id}`);
-            if (el && el.value) attrs[grp.id] = el.value;
-        });
-        const primaryGender = attrs[filterGroups[0]?.id] || filterGroups[0]?.options?.[0] || 'Мужчинам';
-
-        const priceUSD = +(rawPrice / rates[inputCur].rate).toFixed(2);
-        const oldPriceUSD = (hasDiscount && rawOldPrice > 0) ? +(rawOldPrice / rates[inputCur].rate).toFixed(2) : 0;
-
-        const parsedSizes = rawSizes.split(/[,;\n]+/).map(part => {
-            const [sz, cm] = part.split('=').map(s => s ? s.trim() : '');
-            return sz ? { size: sz, cm: cm || '' } : null;
-        }).filter(Boolean);
-
-        const images = uploadedProductPhotos.length > 0 ? uploadedProductPhotos : ['https://images.unsplash.com/photo-1552346154-21d32810aba3?w=600'];
-
-        const fullVariants = [
-            { name: mainColor, images: images },
-            ...uploadedVariants
-        ];
-
         const btn = document.getElementById('save-prod-btn');
-        btn.disabled = true;
-        btn.innerText = '⏳ Сохранение...';
 
         try {
+            const editId = document.getElementById('adm-edit-id').value;
+            const brand = document.getElementById('adm-brand').value.trim() || 'TÉNÉBRIS';
+            const customCode = document.getElementById('adm-code').value.trim();
+            const title = document.getElementById('adm-title').value.trim();
+            const mainColor = document.getElementById('adm-main-color').value.trim() || 'Black';
+            const rawPrice = Number(document.getElementById('adm-price').value);
+            const hasDiscount = document.getElementById('adm-has-discount').checked;
+            const rawOldPrice = hasDiscount ? Number(document.getElementById('adm-old-price').value) : 0;
+            const inputCur = document.getElementById('adm-cur').value;
+            const rawSizes = document.getElementById('adm-sizes').value.trim();
+            const desc = document.getElementById('adm-desc').value.trim();
+
+            if (!title || !rawPrice) {
+                alert('Заполните название модели и цену!');
+                return;
+            }
+
+            // Автоматическое прикрепление загруженных фото нового цвета, если пользователь сразу нажал "Сохранить"
+            const pendingVarName = document.getElementById('var-color-name').value.trim();
+            if (tempVariantPhotos.length > 0) {
+                uploadedVariants.push({
+                    name: pendingVarName || `Цвет ${uploadedVariants.length + 2}`,
+                    images: [...tempVariantPhotos]
+                });
+                document.getElementById('var-color-name').value = '';
+                tempVariantPhotos = [];
+                renderTempVariantPreviews();
+                renderVariantPreviews();
+            }
+
+            const attrs = {};
+            filterGroups.forEach(grp => {
+                const el = document.getElementById(`adm-attr-${grp.id}`);
+                if (el && el.value) attrs[grp.id] = el.value;
+            });
+            const primaryGender = attrs[filterGroups[0]?.id] || filterGroups[0]?.options?.[0] || 'Мужские';
+
+            const priceUSD = +(rawPrice / rates[inputCur].rate).toFixed(2);
+            const oldPriceUSD = (hasDiscount && rawOldPrice > 0) ? +(rawOldPrice / rates[inputCur].rate).toFixed(2) : 0;
+
+            const parsedSizes = rawSizes.split(/[,;\n]+/).map(part => {
+                const [sz, cm] = part.split('=').map(s => s ? s.trim() : '');
+                return sz ? { size: sz, cm: cm || '' } : null;
+            }).filter(Boolean);
+
+            const images = uploadedProductPhotos.length > 0 ? uploadedProductPhotos : ['https://images.unsplash.com/photo-1552346154-21d32810aba3?w=600'];
+
+            const fullVariants = [
+                { name: mainColor, images: images },
+                ...uploadedVariants
+            ];
+
+            btn.disabled = true;
+            btn.innerText = '⏳ Сохранение на сервере...';
+
             if (editId) {
                 const idx = products.findIndex(x => String(x.id) === String(editId));
                 if (idx !== -1) {
@@ -1900,14 +1950,17 @@
                 products.unshift(newProd);
             }
 
+            selectedQuickTab = 'ALL';
             renderCatalog();
             renderAdminProductList();
 
             const success = await syncCatalogToGitHub();
             if (success) {
                 resetAdminForm();
-                alert('✅ Изменения успешно сохранены и опубликованы!');
+                alert('✅ Товар и все цвета успешно сохранены!');
             }
+        } catch (err) {
+            alert('⚠️ Ошибка при сохранении: ' + err.message);
         } finally {
             btn.disabled = false;
             btn.innerText = document.getElementById('adm-edit-id').value ? '💾 Сохранить изменения' : '✅ Сохранить и опубликовать';
